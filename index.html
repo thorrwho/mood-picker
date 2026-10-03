@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mood → Horror Pick | After Dark Rentals</title>
+<meta name="description" content="Tell the clerk how your week went. She'll pull the horror movie, game or series that fits, with a sarcastic note on why.">
+<meta name="theme-color" content="#050507">
+<meta property="og:title" content="Mood → Horror Pick | After Dark Rentals">
+<meta property="og:description" content="Tell the clerk how your week went. She'll pull the horror tape that fits, with a sarcastic note on why.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M20 90V45C20 12 80 12 80 45V90l-10-8-10 8-10-8-10 8-10-8z' fill='%23F4F1EA' stroke='%230A0A0F' stroke-width='5' stroke-linejoin='round'/%3E%3Ccircle cx='40' cy='48' r='5' fill='%230A0A0F'/%3E%3Ccircle cx='60' cy='48' r='5' fill='%230A0A0F'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=IBM+Plex+Sans:wght@400;500;700&family=Special+Elite&family=VT323&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#E8DDC4; --panel:#F4ECD8; --text:#17141A; --muted:#5C5568; --red:#C1121B; --cyan:#0B8FA6;
+  --paper:#F2EAD6; --ink:#0A0A0F; --ghost:#5a3ea8; --line:rgba(10,10,15,.22); --scan:.05; --vig:0; --shadow:rgba(10,10,15,.28); --osd:#7CFF6B;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0B0B10; --panel:#15151D; --text:#EDEAE2; --muted:#9A97A6; --red:#FF2A33; --cyan:#19E3FF;
+    --line:rgba(237,234,226,.2); --scan:.07; --vig:.55; --shadow:rgba(0,0,0,.65); --ghost:#B9A4FF;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0B0B10; --panel:#15151D; --text:#EDEAE2; --muted:#9A97A6; --red:#FF2A33; --cyan:#19E3FF;
+  --line:rgba(237,234,226,.2); --scan:.07; --vig:.55; --shadow:rgba(0,0,0,.65); --ghost:#B9A4FF;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px);scroll-behavior:smooth}
+*{box-sizing:border-box}
+body{margin:0;background-color:var(--bg);color:var(--text);font-family:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:16px;line-height:1.6;overflow-x:clip;position:relative}
+/* CRT: scanlines, vignette, drifting tracking band */
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:50;opacity:var(--scan);background:repeating-linear-gradient(0deg,#000 0 1px,transparent 1px 3px)}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:49;background:radial-gradient(ellipse at center,transparent 55%,rgba(0,0,0,var(--vig)) 100%)}
+.track{position:fixed;left:0;right:0;top:-20px;height:16px;z-index:48;pointer-events:none;background:linear-gradient(transparent,rgba(255,255,255,.07),transparent);animation:trackdrift 9s linear infinite}
+@keyframes trackdrift{to{transform:translateY(110vh)}}
+
+.osd{position:relative;z-index:4;background:#050507;color:var(--osd);font-family:VT323,"Courier New",monospace;font-size:1.4rem;letter-spacing:.06em;display:flex;justify-content:space-between;gap:14px;padding:6px 18px;text-shadow:0 0 8px rgba(124,255,107,.55);white-space:nowrap;overflow:hidden}
+.osd .rec{display:inline-block;width:10px;height:10px;border-radius:50%;background:#ff2a33;margin-right:8px;animation:blink 1.2s steps(2) infinite;box-shadow:0 0 8px #ff2a33}
+@keyframes blink{50%{opacity:.15}}
+.wrap{position:relative;z-index:1;max-width:1080px;margin:0 auto;padding:0 22px 70px}
+.red{color:var(--red)}
+
+/* hero */
+.hero{display:grid;grid-template-columns:1.1fr .9fr;gap:30px;align-items:center;padding:38px 0 18px}
+@media (max-width:860px){.hero{grid-template-columns:1fr;text-align:center}}
+.kicker{display:inline-block;font-family:VT323,monospace;font-size:1.25rem;color:#fff;background:var(--red);padding:0 12px;letter-spacing:.08em;transform:rotate(-1.5deg)}
+h1{margin:14px 0 0;font-family:Anton,Impact,"Arial Narrow",sans-serif;font-weight:400;text-transform:uppercase;font-size:clamp(2.4rem,6vw,4.7rem);line-height:.98;letter-spacing:.01em;text-shadow:-3px 0 var(--red),3px 0 var(--cyan);animation:glitch 7s infinite}
+@keyframes glitch{0%,90%,100%{transform:none}91%{transform:translateX(-5px) skewX(-6deg)}92%{transform:translateX(6px)}93%{transform:translateX(-2px) skewX(4deg)}94%{transform:none}}
+.lede{font-size:1.1rem;color:var(--muted);max-width:30em;margin:16px 0 20px}
+@media (max-width:860px){.lede{margin-left:auto;margin-right:auto}}
+.btn{display:inline-block;font-family:VT323,monospace;font-size:1.55rem;letter-spacing:.06em;text-decoration:none;cursor:pointer;color:#fff;background:var(--red);border:0;border-bottom:5px solid #7d0a10;border-radius:4px;padding:6px 26px 4px;transition:transform .1s}
+.btn:hover{transform:translateY(-2px)}
+.btn:active{transform:translateY(3px);border-bottom-width:2px}
+.btn:disabled{opacity:.65;cursor:progress}
+.btn2{font-family:VT323,monospace;font-size:1.3rem;letter-spacing:.05em;cursor:pointer;color:var(--text);background:transparent;border:2px solid var(--text);border-radius:4px;padding:3px 16px 1px;text-decoration:none}
+.btn2:hover{background:var(--text);color:var(--bg)}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+@media (max-width:860px){.hero .row{justify-content:center}}
+:focus-visible{outline:3px solid var(--cyan);outline-offset:3px}
+
+/* clerk + counter */
+.store{position:relative;min-height:400px;display:grid;place-items:end center}
+.neon{position:absolute;top:0;left:6%;font-family:"Special Elite",monospace;font-size:1.5rem;color:#ff6b73;border:3px solid #ff6b73;border-radius:8px;padding:0 14px;text-shadow:0 0 10px #ff2a33,0 0 24px #ff2a33;box-shadow:0 0 12px #ff2a33,inset 0 0 12px rgba(255,42,51,.5);animation:neon 5s infinite;transform:rotate(-4deg);background:#1a0305}
+@keyframes neon{0%,18%,22%,60%,100%{opacity:1}20%,21%,62%{opacity:.35}}
+.clerk{position:relative;z-index:1;width:250px;margin-bottom:34px;animation:bob 3.2s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-7px)}}
+.clerk svg{display:block;width:100%;height:auto;overflow:visible;filter:drop-shadow(0 0 22px rgba(255,255,255,.18))}
+.counter{position:absolute;left:0;right:0;bottom:0;height:62px;z-index:2;border-radius:6px 6px 0 0;background:linear-gradient(#6b4528,#46291a);border-top:6px solid #8a5a35;box-shadow:0 -4px 0 rgba(0,0,0,.35),0 20px 40px var(--shadow)}
+.counter::before{content:"";position:absolute;left:12%;top:-30px;width:60px;height:24px;background:#15151d;border:2px solid #000;border-radius:3px;box-shadow:70px 0 0 -1px #1c1c26,70px 0 0 1px #000}
+.counter::after{content:"";position:absolute;right:12%;top:-22px;width:24px;height:16px;background:#e5c06a;border:2px solid #000;border-radius:12px 12px 2px 2px}
+.say{position:absolute;z-index:3;top:34px;right:-4px;max-width:190px;background:var(--paper);color:#0A0A0F;font-family:"Special Elite",monospace;font-size:.95rem;line-height:1.25;padding:9px 13px;border:2px solid #0A0A0F;border-radius:12px;box-shadow:0 8px 18px var(--shadow)}
+.say::after{content:"";position:absolute;left:18px;bottom:-9px;width:14px;height:14px;background:var(--paper);border-right:2px solid #0A0A0F;border-bottom:2px solid #0A0A0F;transform:rotate(45deg)}
+.say.bump{animation:bump .22s ease-out}
+@keyframes bump{from{transform:scale(.93)}to{transform:none}}
+@media (max-width:560px){.say{right:-2px;max-width:150px;font-size:.85rem}.neon{font-size:1.2rem}}
+
+/* rental slip (form) */
+section{margin-top:44px}
+.slip{position:relative;background:var(--paper);color:#0A0A0F;border-radius:4px;padding:26px 26px 22px;box-shadow:0 20px 44px var(--shadow);transform:rotate(-.4deg)}
+.slip::before{content:"";position:absolute;left:0;right:0;top:-6px;height:12px;background:radial-gradient(circle at 8px 12px,var(--bg) 5px,transparent 5.5px) 0 0/16px 12px repeat-x}
+.slip-head{display:flex;justify-content:space-between;font-family:VT323,monospace;font-size:1.3rem;letter-spacing:.08em;color:#9c0f17;border-bottom:2px dashed rgba(10,10,15,.35);padding-bottom:6px;margin-bottom:14px}
+.q{display:block;font-family:"Special Elite",monospace;font-size:1.1rem;margin-bottom:8px}
+textarea{width:100%;min-height:140px;resize:vertical;font-family:"Special Elite",monospace;font-size:1.05rem;line-height:1.5;color:#0A0A0F;background:#FFFDF5;border:2px solid #0A0A0F;border-radius:3px;padding:12px 14px}
+textarea::placeholder{color:#7a7468}
+textarea:focus{outline:none;box-shadow:0 0 0 4px rgba(193,18,27,.3)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 4px}
+.chip{font-family:VT323,monospace;font-size:1.1rem;letter-spacing:.04em;cursor:pointer;background:transparent;color:#0A0A0F;border:1.5px dashed #0A0A0F;border-radius:99px;padding:1px 12px}
+.chip:hover{background:#0A0A0F;color:var(--paper)}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:16px 0 18px}
+@media (max-width:640px){.opts{grid-template-columns:1fr}}
+fieldset{border:0;margin:0;padding:0}
+legend{font-family:VT323,monospace;font-size:1.15rem;letter-spacing:.1em;color:#9c0f17;padding:0;margin-bottom:6px}
+.fmt{display:flex;flex-wrap:wrap;gap:8px}
+.legnote{font-family:"Special Elite",monospace;letter-spacing:0;font-size:.8rem;color:#5a554b}
+.fmtnote{margin:6px 0 0;font-size:.82rem;color:#5a554b}
+.fmt label{position:relative;cursor:pointer}
+.fmt input{position:absolute;opacity:0;pointer-events:none}
+.fmt span{display:inline-block;font-family:"Special Elite",monospace;font-size:.95rem;padding:3px 12px 3px 30px;border:2px solid #0A0A0F;border-radius:3px;background:#FFFDF5;position:relative}
+.fmt span::before{content:"";position:absolute;left:8px;top:50%;width:14px;height:14px;margin-top:-7px;border:2px solid #0A0A0F;background:#fff}
+.fmt input:checked+span{background:#0A0A0F;color:var(--paper)}
+.fmt input:checked+span::before{background:var(--red);border-color:var(--paper)}
+.fmt input:focus-visible+span{outline:3px solid var(--cyan);outline-offset:2px}
+input[type=range]{width:100%;accent-color:#C1121B}
+.skulls{display:flex;gap:4px;margin-top:2px}
+.skulls svg{width:22px;height:22px}
+.small{font-size:.8rem;color:#5a554b;margin:14px 0 0}
+.slip .note{color:#5a554b}
+
+/* result */
+#out{margin-top:40px;display:grid;gap:26px}
+.res{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);gap:30px;align-items:start}
+@media (max-width:860px){.res{grid-template-columns:1fr}}
+.tape{position:relative;width:100%;max-width:520px;aspect-ratio:1.62;background:linear-gradient(#1a1a22,#0f0f14);border:2px solid #000;border-radius:12px;box-shadow:0 26px 50px var(--shadow),inset 0 2px 0 rgba(255,255,255,.08);margin:0 auto;transform:rotate(-1.5deg)}
+.tape::before,.tape::after{content:"";position:absolute;top:10px;width:10px;height:10px;border-radius:50%;background:#2c2c36;box-shadow:inset 0 0 0 2px #000}
+.tape::before{left:10px}.tape::after{right:10px}
+.tlabel{position:absolute;left:6%;right:6%;top:7%;height:55%;background:#F2EAD6;color:#0A0A0F;border-radius:4px;overflow:hidden;padding:20px 14px 8px;display:flex;flex-direction:column;justify-content:space-between}
+.tlabel .stripe{position:absolute;left:0;right:0;top:0;height:13px;background:repeating-linear-gradient(90deg,#C1121B 0 18px,#0A0A0F 18px 22px)}
+.ttitle{font-family:Anton,Impact,sans-serif;text-transform:uppercase;line-height:1;font-size:var(--fs,2.4rem);letter-spacing:.01em;margin-top:6px;word-break:break-word}
+.tmeta{display:flex;justify-content:space-between;align-items:center;font-family:VT323,monospace;font-size:1.2rem;letter-spacing:.07em}
+.tmeta .skulls svg{width:18px;height:18px}
+.twin{position:absolute;left:24%;right:24%;bottom:7%;height:22%;background:#050507;border:2px solid #000;border-radius:40px;display:flex;justify-content:space-between;align-items:center;padding:0 12px}
+.reel{display:block;width:34px;height:34px;border-radius:50%;background:radial-gradient(circle,#050507 0 24%,transparent 25%),conic-gradient(#F2EAD6 0 20deg,#2c2c36 20deg 120deg,#F2EAD6 120deg 140deg,#2c2c36 140deg 240deg,#F2EAD6 240deg 260deg,#2c2c36 260deg 360deg);border:2px solid #F2EAD6;animation:reel 5s linear infinite}
+.tape.loading .reel{animation-duration:.5s;animation-direction:reverse}
+@keyframes reel{to{transform:rotate(360deg)}}
+@media (max-width:560px){.tlabel{padding:18px 10px 6px}.ttitle{font-size:calc(var(--fs)*.74)}.tmeta{font-size:1rem;gap:6px}.tmeta .skulls svg{width:13px;height:13px}.tmeta .skulls{gap:2px}}
+.meta .wl{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;padding:0;border:0}
+.attrib{margin:34px auto 0;max-width:34em;text-align:center;font-size:.78rem;color:var(--muted)}
+.attrib[hidden]{display:none}
+.wbody b{font-weight:700}
+.wlink{font-family:VT323,monospace;font-size:1.05rem;letter-spacing:.05em;color:var(--text);border:1.5px solid var(--text);border-radius:99px;padding:0 12px;text-decoration:none}
+.wlink:hover{background:var(--text);color:var(--bg)}
+button.wlink{background:transparent;cursor:pointer;font-family:VT323,monospace;font-size:1.05rem;letter-spacing:.05em}
+.meta .wfallback{padding:0;border:0;margin-top:10px}
+.meta .wcopyrow{display:flex;gap:8px;align-items:center;margin-top:6px;padding:0;border:0}
+.wurl{flex:1;min-width:0;font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:.78rem;color:inherit;background:transparent;border:1.5px dashed currentColor;border-radius:6px;padding:5px 8px}
+.wnote{color:var(--muted);font-size:.8rem}
+.spooky{font-family:"Special Elite",monospace;font-style:italic;color:var(--ghost);animation:ghostfade 4s ease-in-out infinite}
+@keyframes ghostfade{50%{opacity:.62}}
+/* both popups are always cream, so their buttons and chips use fixed dark ink (theme colours would turn cream-on-cream in dark mode) */
+.mbox .btn2{color:#0A0A0F;border-color:#0A0A0F}
+.mbox .btn2:hover{background:#0A0A0F;color:var(--paper)}
+.mbox .chip2{border-color:#0A0A0F}
+/* the details popup is always cream, so its info panel is a fixed dark panel with cream text (readable in both themes) */
+.dm .meta{background:#15151D;color:#F2EAD6;border:1px solid rgba(242,234,214,.22);border-radius:6px;padding:6px 16px;margin-top:12px}
+.dm .meta div{border-bottom:0;padding:8px 0}
+.dm .meta dt{color:#FF6B73}
+.dm .meta dd{color:#F2EAD6}
+.dm .meta .wnote{color:#C9C2B0}
+.dm .meta .spooky{color:#B9A4FF}
+.dm .meta .chip2{color:#F2EAD6;border-color:#F2EAD6}
+.dm .meta .wlink{color:#F2EAD6;border-color:#F2EAD6}
+.dm .meta .wlink:hover{background:#F2EAD6;color:#15151D}
+.stack{display:grid;gap:16px}
+.read{display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:center;margin:12px auto 0;max-width:520px}
+.tag{font-family:VT323,monospace;font-size:1.1rem;letter-spacing:.04em;background:var(--panel);border:1px solid var(--line);border-radius:3px;padding:0 9px}
+.note-card{background:var(--paper);color:#0A0A0F;border-radius:4px;padding:18px 20px;box-shadow:0 14px 30px var(--shadow);position:relative;transform:rotate(.5deg)}
+.note-card h3{margin:0 0 6px;font-family:VT323,monospace;font-weight:400;font-size:1.3rem;letter-spacing:.1em;color:#9c0f17}
+.note-card p{margin:0;font-family:"Special Elite",monospace;font-size:1.05rem;line-height:1.5;min-height:3em}
+.cursor::after{content:"";display:inline-block;width:.55em;height:1em;background:#0A0A0F;margin-left:2px;vertical-align:-2px;animation:blink 1s steps(2) infinite}
+.meta{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:6px 18px}
+.meta div{padding:9px 0;border-bottom:1px dashed var(--line)}
+.meta div:last-child{border-bottom:0}
+.meta dt{font-family:VT323,monospace;font-size:1.1rem;letter-spacing:.1em;color:var(--red)}
+.meta dd{margin:0}
+.backup{display:flex;gap:14px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:12px 16px}
+.backup .sp{flex:none;width:34px;height:84px;border-radius:3px;background:var(--c,#B3121A);writing-mode:vertical-rl;transform:rotate(180deg);color:#fff;font-family:Anton,sans-serif;font-size:.8rem;display:grid;place-items:center;overflow:hidden;padding:4px 0}
+.backup b{font-family:Anton,sans-serif;font-weight:400;text-transform:uppercase;letter-spacing:.02em;font-size:1.15rem}
+.chip2{display:inline-block;font-family:VT323,monospace;font-size:1rem;letter-spacing:.05em;border:1.5px solid var(--text);border-radius:99px;padding:0 10px;margin-right:6px}
+.care{background:var(--paper);color:#0A0A0F;border-radius:6px;padding:24px 26px;box-shadow:0 20px 44px var(--shadow);border-left:10px solid #0B8FA6}
+.care h3{margin:0 0 8px;font-family:Anton,sans-serif;font-weight:400;text-transform:uppercase;font-size:1.8rem}
+.care p{margin:8px 0}
+.skel{color:var(--muted)}
+.loadmsg{font-family:VT323,monospace;font-size:1.5rem;letter-spacing:.1em;color:var(--osd);text-align:center;text-shadow:0 0 8px rgba(124,255,107,.5)}
+
+/* shelves */
+.sh{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin:0 0 12px}
+h2{margin:0;font-family:Anton,Impact,sans-serif;font-weight:400;text-transform:uppercase;font-size:clamp(1.8rem,4vw,2.5rem);letter-spacing:.02em;line-height:1}
+.hint{font-family:"Special Elite",monospace;color:var(--muted)}
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 12px}
+.shelfsearch{width:100%;max-width:340px;font-family:VT323,monospace;font-size:1.3rem;letter-spacing:.04em;color:var(--text);background:var(--panel);border:1.5px solid var(--text);border-radius:4px;padding:2px 12px}
+.shelfsearch::placeholder{color:var(--muted)}
+.filters button{font-family:VT323,monospace;font-size:1.2rem;letter-spacing:.06em;cursor:pointer;color:var(--text);background:transparent;border:1.5px solid var(--text);border-radius:99px;padding:0 14px}
+.filters button[aria-pressed=true]{background:var(--text);color:var(--bg)}
+.shelf{display:flex;flex-wrap:wrap;align-items:flex-end;gap:5px;padding:26px 18px 0;background:linear-gradient(#251810,#170e08);border-radius:8px 8px 0 0;border-bottom:14px solid #4a3020;box-shadow:inset 0 10px 30px rgba(0,0,0,.6),0 18px 30px var(--shadow)}
+.spine{flex:none;width:34px;height:var(--h,150px);border:0;border-radius:3px 3px 0 0;background:var(--c);color:#fff;cursor:pointer;writing-mode:vertical-rl;transform:rotate(180deg);font-family:Anton,sans-serif;font-size:.85rem;letter-spacing:.03em;text-transform:uppercase;padding:8px 0 6px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;box-shadow:inset 3px 0 0 rgba(255,255,255,.18),inset -3px 0 0 rgba(0,0,0,.3);transition:translate .15s}
+.spine:hover,.spine:focus-visible{translate:0 12px}
+.spine[hidden]{display:none}
+
+/* how + faq */
+.how{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+@media (max-width:760px){.how{grid-template-columns:1fr}}
+.how div{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:16px 18px}
+.how b{font-family:VT323,monospace;font-size:1.5rem;letter-spacing:.08em;color:var(--red);display:block}
+.how p{margin:2px 0 0;color:var(--muted)}
+.faq details{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:12px 18px;margin:0 0 10px}
+.faq summary{cursor:pointer;font-weight:700}
+.faq p{margin:8px 0 0;color:var(--muted)}
+.foot{margin-top:50px;text-align:center;font-family:"Special Elite",monospace;color:var(--muted)}
+.foot b{display:block;font-family:VT323,monospace;font-weight:400;font-size:1.7rem;letter-spacing:.1em;color:var(--osd);text-shadow:0 0 8px rgba(124,255,107,.5)}
+
+/* modals */
+.modal{position:fixed;inset:0;z-index:70;background:rgba(0,0,0,.82);display:flex;align-items:center;justify-content:center;padding:16px}
+.modal[hidden]{display:none}
+.mbox{background:var(--paper);color:#0A0A0F;border:2px solid #000;border-radius:6px;padding:18px;max-width:520px;width:100%;max-height:96vh;overflow:auto;text-align:center}
+.mbox img{display:block;width:100%;max-height:62vh;object-fit:contain;border-radius:4px;margin-bottom:14px}
+.mbox .row{justify-content:center}
+.dm{text-align:left}
+.dm h3{margin:0;font-family:Anton,sans-serif;font-weight:400;text-transform:uppercase;font-size:2rem;line-height:1}
+.dm p{margin:10px 0}
+
+/* margin stickers */
+#decos{position:fixed;inset:0;z-index:0;pointer-events:none}
+.deco{position:absolute;animation:float 5.5s ease-in-out infinite;will-change:transform}
+@keyframes float{50%{transform:translateY(-12px)}}
+.deco .hit{width:100%;height:100%;pointer-events:auto;cursor:pointer;clip-path:circle(50%)}
+.deco .spin{width:100%;height:100%;will-change:transform}
+.deco .art{display:block;width:100%;height:100%;overflow:visible;transition:transform .25s;filter:drop-shadow(0 8px 12px var(--shadow))}
+.deco.hot .art{transform:scale(1.1)}
+.deco .ol{stroke:#0A0A0F}
+.deco .flame{transform-box:fill-box;transform-origin:50% 100%;animation:flame .45s ease-in-out infinite alternate}
+@keyframes flame{from{transform:scale(.94,.9)}to{transform:scale(1.04,1.06)}}
+@media (prefers-reduced-motion:reduce){.track,.deco,.deco .flame,.clerk,h1,.neon,.osd .rec,.reel,.cursor::after,.spooky{animation:none}html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<div class="track" aria-hidden="true"></div>
+<div class="osd" aria-hidden="true"><span><i class="rec"></i><span id="osdMode">PLAY ▶</span> &nbsp;SP</span><span id="osdTime">0:00:00</span><span>CH 03 · AFTER DARK RENTALS</span></div>
+
+<main class="wrap">
+  <section class="hero" style="margin-top:0">
+    <div>
+      <span class="kicker">OPEN ALL NIGHT · NO REFUNDS</span>
+      <h1>Tell me how your week went. <span class="red">I'll pull your tape.</span></h1>
+      <p class="lede">A horror movie, game or series picked for your exact mood, with a sarcastic note on why. Every tape is a real title from a hand-curated shelf. The clerk only writes the commentary.</p>
+      <div class="row">
+        <a class="btn" id="cta" href="#rent">RENT A TAPE ▶</a>
+        <button class="btn2" id="surprise" type="button">SURPRISE ME</button>
+      </div>
+    </div>
+    <div class="store">
+      <div class="neon" aria-hidden="true">OPEN</div>
+      <div class="say" id="say" aria-live="polite">Well? I don't have all night. Actually, I do.</div>
+      <div class="clerk" id="clerk" aria-hidden="true"></div>
+      <div class="counter" aria-hidden="true"></div>
+    </div>
+  </section>
+
+  <section id="rent" aria-label="Rental slip">
+    <form class="slip" id="form" autocomplete="off">
+      <div class="slip-head"><span>RENTAL SLIP</span><span>No. <b id="slipno">0013</b></span></div>
+      <label class="q" for="mood">Tell the clerk how your day (or week) has been.</label>
+      <textarea id="mood" maxlength="600" placeholder="e.g. exam week, zero sleep, and my boss said &quot;let's circle back&quot;"></textarea>
+      <div class="chips" id="chips" aria-label="Quick moods"></div>
+      <div class="opts">
+        <fieldset><legend>FORMAT <span class="legnote">(tick any)</span></legend>
+          <div class="fmt" id="fmt">
+            <label><input type="checkbox" name="fmt" value="film" checked><span>Movies</span></label>
+            <label><input type="checkbox" name="fmt" value="series" checked><span>Series</span></label>
+            <label><input type="checkbox" name="fmt" value="game" checked><span>Games</span></label>
+          </div>
+          <p class="fmtnote" id="fmtNote" aria-live="polite">Anything on the shelves.</p>
+        </fieldset>
+        <fieldset><legend>SCARE LEVEL: <span id="tolLabel">Medium</span> <span class="legnote">(aim for about this scary)</span></legend>
+          <input type="range" id="tol" min="1" max="5" value="3" aria-label="Scare level">
+          <div class="skulls" id="tolSkulls" aria-hidden="true"></div>
+        </fieldset>
+      </div>
+      <button class="btn" id="go" type="submit">FIND MY TAPE ▶</button>
+      <p class="small" id="priv">Your words are sent to an AI service only to write the clerk's note. This site does not store them, and the provider handles them under its own data policy. If the AI is unavailable, a built-in clerk picks the tape instead, and the result says which one did.</p>
+    </form>
+  </section>
+
+  <div id="out" aria-live="polite"></div>
+
+  <section aria-label="The shelves">
+    <div class="sh"><h2>The shelves</h2><span class="hint" id="shelfHint">the whole store, spine out</span></div>
+    <div class="filters" id="filters" role="group" aria-label="Filter shelves"></div>
+    <input class="shelfsearch" id="shelfSearch" type="search" placeholder="search the shelves..." aria-label="Search the shelves" autocomplete="off">
+    <p class="hint" id="shelfCount" aria-live="polite" style="margin:8px 0 12px"></p>
+    <div class="shelf" id="shelf"></div>
+  </section>
+
+  <section aria-label="How it works">
+    <div class="sh"><h2>How it works</h2></div>
+    <div class="how">
+      <div><b>1. CONFESS</b><p>Type how your day or week has been. Dumb, specific details work best.</p></div>
+      <div><b>2. THE CLERK PICKS</b><p>She chooses from a curated shelf, so the title and year are always real, then writes a dry note about why.</p></div>
+      <div><b>3. REWIND &amp; RENT</b><p>Not feeling it? Ask for another tape, or make a poster to send to the group chat.</p></div>
+    </div>
+  </section>
+
+  <section class="faq" aria-label="Questions">
+    <div class="sh"><h2>Questions</h2></div>
+    <details><summary>Are the titles real? Will it invent a movie?</summary><p>No. The AI can only choose from the shelf above, which is a fixed list of real titles. The server rejects anything else, so a made-up title or year can never reach the page. The clerk writes the commentary; the facts come from the list.</p></details>
+    <details><summary>Is this actually AI?</summary><p>Yes, when it can be: a Claude model reads your mood and picks from the shelf. If the AI is down or over its limit, a built-in clerk matches your words to the shelf instead, and the result says which one picked.</p></details>
+    <details><summary>Where can I watch or play it?</summary><p>Each result has a "where to watch" (or "where to play") line. When the site's live feed is switched on, movies and series show what is streaming in your country right now (data from JustWatch, via TMDB). Otherwise, where the clerk is sure of a stable home, like a Netflix original or the platforms a game shipped on, she says so. Streaming libraries change by country and by month, so when she is not sure she will tell you, in her own spooky way, and link you to a live lookup (JustWatch for movies and series, Steam for games) so you are never sent to the wrong place.</p></details>
+    <details><summary>Will it spoil the movie?</summary><p>No spoilers. The clerk is told to stay at the premise level.</p></details>
+    <details><summary>Can I just tell her how scary I want it?</summary><p>Yes. Say "scare me" or "nothing too scary" and the clerk adjusts the scare level for you, unless you have already moved the slider yourself (then the slider wins). The result tells you when she nudged it.</p></details>
+    <details><summary>How scary will it be?</summary><p>The scare level is a target, not just a limit. The clerk aims for about that level (and the one just below it), so "Bring it on" gets you the genuinely scary tapes and "Gentle" gets you cosy-creepy ones like Over the Garden Wall, Oxenfree and Coraline. If you scare easily, slide it down.</p></details>
+  </section>
+
+  <p class="attrib" id="attrib" hidden>Where-to-watch data: JustWatch, via the TMDB API. This product uses the TMDB API but is not endorsed or certified by TMDB.</p>
+  <p class="foot"><b>BE KIND, REWIND.</b>made after midnight, with too much chai</p>
+</main>
+
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-label="Poster" hidden>
+  <div class="mbox">
+    <img id="cardImg" alt="Your tape poster">
+    <div class="row"><button class="btn" id="saveCard" type="button">SAVE IMAGE</button><button class="btn2" id="closeCard" type="button">CLOSE</button></div>
+    <p class="note" id="saveNote" style="color:#5a554b;font-size:.85rem;margin:12px 0 0"></p>
+  </div>
+</div>
+<div class="modal" id="dmodal" role="dialog" aria-modal="true" aria-label="Tape details" hidden>
+  <div class="mbox dm"><div id="dbody"></div><div class="row" style="margin-top:14px"><button class="btn2" id="closeD" type="button">CLOSE</button></div></div>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const reduced=()=>window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
+
+/*CATALOG_START*/
+const CATALOG=[{"id":"shining","title":"The Shining","year":1980,"type":"film","dread":4,"pace":"slow","tags":["burnout","loneliness","paranoia","family"],"blurb":"A writer takes a winter caretaker job at a remote hotel and slowly unravels."},{"id":"hereditary","title":"Hereditary","year":2018,"type":"film","dread":5,"pace":"slow","tags":["grief","family","anxiety"],"blurb":"A family unravels after the death of its secretive matriarch."},{"id":"midsommar","title":"Midsommar","year":2019,"type":"film","dread":4,"pace":"slow","tags":["breakup","grief","loneliness","social"],"blurb":"A grieving woman joins her boyfriend on a trip to a Swedish midsummer festival."},{"id":"babadook","title":"The Babadook","year":2014,"type":"film","dread":3,"pace":"slow","tags":["grief","burnout","family","anxiety"],"blurb":"An exhausted widow and her son are haunted by a pop-up book monster."},{"id":"rosemary","title":"Rosemary's Baby","year":1968,"type":"film","dread":3,"pace":"slow","tags":["paranoia","social","anxiety","breakup"],"blurb":"A pregnant woman starts to suspect her friendly new neighbours."},{"id":"exorcist","title":"The Exorcist","year":1973,"type":"film","dread":5,"pace":"medium","tags":["family","curious"],"blurb":"A mother seeks help when her young daughter shows terrifying changes."},{"id":"halloween","title":"Halloween","year":1978,"type":"film","dread":3,"pace":"medium","tags":["nostalgia","fun","friends","adrenaline"],"blurb":"A masked killer returns to his hometown on Halloween night."},{"id":"scream","title":"Scream","year":1996,"type":"film","dread":2,"pace":"fast","tags":["fun","friends","nostalgia","boredom"],"blurb":"A small town is stalked by a killer who knows every horror movie rule."},{"id":"getout","title":"Get Out","year":2017,"type":"film","dread":3,"pace":"medium","tags":["social","paranoia","anxiety","rage"],"blurb":"A young man meets his girlfriend's family and senses something is very wrong."},{"id":"quietplace","title":"A Quiet Place","year":2018,"type":"film","dread":3,"pace":"fast","tags":["anxiety","adrenaline","family"],"blurb":"A family survives in silence among creatures that hunt by sound."},{"id":"busan","title":"Train to Busan","year":2016,"type":"film","dread":3,"pace":"fast","tags":["adrenaline","family","grief","pressure"],"blurb":"Passengers fight to survive a zombie outbreak on a speeding train."},{"id":"ringu","title":"Ringu","year":1998,"type":"film","dread":4,"pace":"slow","tags":["paranoia","anxiety","curious","nostalgia"],"blurb":"A journalist investigates a videotape said to kill whoever watches it."},{"id":"others","title":"The Others","year":2001,"type":"film","dread":3,"pace":"slow","tags":["loneliness","grief","family"],"blurb":"A mother in a foggy mansion is certain her house is haunted."},{"id":"orphanage","title":"The Orphanage","year":2007,"type":"film","dread":3,"pace":"slow","tags":["grief","family","guilt"],"blurb":"A woman reopens her childhood orphanage and her young son disappears."},{"id":"letrightone","title":"Let the Right One In","year":2008,"type":"film","dread":2,"pace":"slow","tags":["loneliness","social","nostalgia"],"blurb":"A lonely, bullied boy befriends a mysterious girl who moves in next door."},{"id":"itfollows","title":"It Follows","year":2014,"type":"film","dread":3,"pace":"medium","tags":["anxiety","paranoia","social"],"blurb":"A young woman is relentlessly pursued by something passed on through contact."},{"id":"witch","title":"The Witch","year":2015,"type":"film","dread":4,"pace":"slow","tags":["loneliness","guilt","family"],"blurb":"A 1630s New England family is torn apart by something in the woods."},{"id":"descent","title":"The Descent","year":2005,"type":"film","dread":4,"pace":"fast","tags":["adrenaline","friends","anxiety"],"blurb":"Friends on a caving trip discover they are not alone underground."},{"id":"shaun","title":"Shaun of the Dead","year":2004,"type":"film","dread":1,"pace":"fast","tags":["fun","friends","boredom","burnout","breakup"],"blurb":"A slacker tries to save his friends and his mum from a zombie apocalypse."},{"id":"evildead2","title":"Evil Dead II","year":1987,"type":"film","dread":3,"pace":"fast","tags":["fun","adrenaline","friends","rage"],"blurb":"A man fights possessed everything at a remote cabin."},{"id":"readyornot","title":"Ready or Not","year":2019,"type":"film","dread":2,"pace":"fast","tags":["fun","friends","adrenaline","social","breakup","rage"],"blurb":"A bride must survive a deadly game of hide and seek with her new in-laws."},{"id":"talktome","title":"Talk to Me","year":2022,"type":"film","dread":4,"pace":"medium","tags":["grief","friends","social","guilt"],"blurb":"Teens discover a ceramic hand that lets them talk to the dead, with consequences."},{"id":"smile","title":"Smile","year":2022,"type":"film","dread":3,"pace":"medium","tags":["anxiety","guilt","burnout"],"blurb":"A psychiatrist is haunted by a grinning curse after a patient's death."},{"id":"coraline","title":"Coraline","year":2009,"type":"film","dread":2,"pace":"medium","tags":["cozy","curious","boredom"],"blurb":"A bored girl finds a door to a too-good-to-be-true other world."},{"id":"tumbbad","title":"Tumbbad","year":2018,"type":"film","dread":3,"pace":"slow","tags":["curious","guilt","family"],"blurb":"A greedy man chases a cursed treasure tied to a forgotten god in early 1900s India."},{"id":"stree","title":"Stree","year":2018,"type":"film","dread":1,"pace":"medium","tags":["fun","friends","social"],"blurb":"A town fears a ghost that targets men during a festival, and a few friends investigate."},{"id":"bhoot","title":"Bhoot","year":2003,"type":"film","dread":3,"pace":"medium","tags":["anxiety","paranoia","family"],"blurb":"A couple moves into a Mumbai apartment with a dark history."},{"id":"bulbbul","title":"Bulbbul","year":2020,"type":"film","dread":2,"pace":"slow","tags":["social","guilt","curious"],"where":"Netflix","blurb":"A gothic folk tale set in 1880s Bengal about a child bride and a rumoured demon in the trees."},{"id":"panslabyrinth","title":"Pan's Labyrinth","year":2006,"type":"film","dread":3,"pace":"slow","tags":["loneliness","curious","grief"],"blurb":"A girl in 1944 Spain escapes into a dark fantasy world."},{"id":"psycho","title":"Psycho","year":1960,"type":"film","dread":3,"pace":"medium","tags":["paranoia","curious","nostalgia"],"blurb":"A woman on the run stops at an out-of-the-way motel."},{"id":"blairwitch","title":"The Blair Witch Project","year":1999,"type":"film","dread":3,"pace":"slow","tags":["friends","anxiety","curious","boredom"],"blurb":"Three students hiking in the woods find themselves lost and hunted."},{"id":"alien","title":"Alien","year":1979,"type":"film","dread":4,"pace":"slow","tags":["anxiety","pressure","loneliness","burnout"],"blurb":"The crew of a commercial spaceship answers a distress call and brings something deadly aboard."},{"id":"thething","title":"The Thing","year":1982,"type":"film","dread":4,"pace":"medium","tags":["paranoia","loneliness","anxiety","social"],"blurb":"Researchers in Antarctica discover a shapeshifting alien that could be any one of them."},{"id":"elmstreet","title":"A Nightmare on Elm Street","year":1984,"type":"film","dread":3,"pace":"medium","tags":["burnout","anxiety","friends","nostalgia"],"blurb":"Teenagers are hunted in their dreams by a burned killer, so staying awake becomes the plan."},{"id":"friday13","title":"Friday the 13th","year":1980,"type":"film","dread":3,"pace":"medium","tags":["fun","friends","nostalgia","adrenaline"],"blurb":"Camp counsellors are picked off one by one while reopening a lakeside summer camp."},{"id":"jaws","title":"Jaws","year":1975,"type":"film","dread":3,"pace":"medium","tags":["adrenaline","friends","fun","nostalgia"],"blurb":"A police chief, a marine scientist and a fisherman hunt a great white shark terrorising a beach town."},{"id":"poltergeist","title":"Poltergeist","year":1982,"type":"film","dread":3,"pace":"medium","tags":["family","nostalgia","anxiety"],"blurb":"A suburban family's home is haunted by spirits drawn to their youngest daughter."},{"id":"notld","title":"Night of the Living Dead","year":1968,"type":"film","dread":3,"pace":"medium","tags":["paranoia","social","nostalgia"],"blurb":"Strangers barricade themselves in a farmhouse as the dead rise outside."},{"id":"28days","title":"28 Days Later","year":2002,"type":"film","dread":4,"pace":"fast","tags":["adrenaline","loneliness","anxiety"],"blurb":"A man wakes from a coma to find Britain emptied by a rage virus."},{"id":"rec","title":"[REC]","year":2007,"type":"film","dread":4,"pace":"fast","tags":["adrenaline","anxiety","friends"],"blurb":"A TV reporter and her cameraman are locked inside a quarantined apartment building."},{"id":"thehost","title":"The Host","year":2006,"type":"film","dread":2,"pace":"fast","tags":["family","adrenaline","social","fun"],"blurb":"A family fights a monster from the Han River to rescue a kidnapped daughter."},{"id":"hush","title":"Hush","year":2016,"type":"film","dread":3,"pace":"fast","tags":["anxiety","adrenaline","loneliness"],"where":"Netflix","blurb":"A deaf writer alone in a forest home is stalked by a masked killer."},{"id":"insidious","title":"Insidious","year":2010,"type":"film","dread":3,"pace":"medium","tags":["family","anxiety","friends"],"blurb":"A family tries to bring their comatose son back from a dark spirit realm."},{"id":"jugon","title":"Ju-On: The Grudge","year":2002,"type":"film","dread":4,"pace":"medium","tags":["anxiety","paranoia","curious"],"blurb":"A curse born from a violent death passes to everyone who enters the house."},{"id":"tucker","title":"Tucker and Dale vs Evil","year":2010,"type":"film","dread":1,"pace":"fast","tags":["fun","friends","social","boredom"],"blurb":"Two friendly hillbillies are mistaken for killers by a group of college kids."},{"id":"gremlins","title":"Gremlins","year":1984,"type":"film","dread":1,"pace":"fast","tags":["fun","nostalgia","family","cozy"],"blurb":"A gift pet comes with three rules, and breaking them unleashes chaos on a small town."},{"id":"beetlejuice","title":"Beetlejuice","year":1988,"type":"film","dread":1,"pace":"fast","tags":["fun","grief","cozy","nostalgia"],"blurb":"A recently deceased couple hire a chaotic ghost to scare the new family out of their house."},{"id":"ghostbusters","title":"Ghostbusters","year":1984,"type":"film","dread":1,"pace":"fast","tags":["fun","friends","nostalgia","burnout"],"blurb":"Three parapsychologists start a ghost-catching business in New York."},{"id":"casper","title":"Casper","year":1995,"type":"film","dread":1,"pace":"medium","tags":["cozy","loneliness","grief","nostalgia"],"blurb":"A friendly ghost befriends a girl who moves into his haunted mansion."},{"id":"hocuspocus","title":"Hocus Pocus","year":1993,"type":"film","dread":1,"pace":"fast","tags":["fun","friends","nostalgia","cozy"],"blurb":"Three witches are revived in Salem on Halloween night and a few teens race to stop them."},{"id":"paranormal","title":"Paranormal Activity","year":2007,"type":"film","dread":3,"pace":"slow","tags":["anxiety","paranoia","boredom"],"blurb":"A couple sets up cameras to record what disturbs their home at night."},{"id":"conjuring","title":"The Conjuring","year":2013,"type":"film","dread":3,"pace":"medium","tags":["family","anxiety","curious"],"blurb":"Paranormal investigators help a family terrorised by a dark presence in their farmhouse."},{"id":"us","title":"Us","year":2019,"type":"film","dread":4,"pace":"medium","tags":["family","anxiety","paranoia"],"blurb":"A family on a beach holiday is attacked by sinister doubles of themselves."},{"id":"nope","title":"Nope","year":2022,"type":"film","dread":2,"pace":"slow","tags":["curious","family","adrenaline"],"blurb":"Siblings who run a horse ranch discover something strange in the sky above it."},{"id":"barbarian","title":"Barbarian","year":2022,"type":"film","dread":4,"pace":"medium","tags":["paranoia","social","anxiety"],"blurb":"A woman arrives at her rental house to find it already booked, and that is only the start."},{"id":"dontbreathe","title":"Don't Breathe","year":2016,"type":"film","dread":4,"pace":"fast","tags":["adrenaline","anxiety","friends"],"blurb":"Three burglars break into a blind man's house and find he is not helpless."},{"id":"wailing","title":"The Wailing","year":2016,"type":"film","dread":4,"pace":"slow","tags":["paranoia","family","guilt","curious"],"blurb":"A Korean village policeman investigates a mysterious sickness that spreads after a stranger arrives."},{"id":"taleoftwosisters","title":"A Tale of Two Sisters","year":2003,"type":"film","dread":3,"pace":"slow","tags":["grief","family","guilt"],"blurb":"Two sisters return home from a hospital to a tense house and a cold stepmother."},{"id":"lighthouse","title":"The Lighthouse","year":2019,"type":"film","dread":3,"pace":"slow","tags":["loneliness","burnout","paranoia"],"blurb":"Two lighthouse keepers slowly lose their grip on reality on a remote island."},{"id":"blackswan","title":"Black Swan","year":2010,"type":"film","dread":3,"pace":"medium","tags":["pressure","anxiety","rage"],"blurb":"A ballerina's drive for perfection tips into obsession."},{"id":"platform","title":"The Platform","year":2019,"type":"film","dread":4,"pace":"medium","tags":["social","rage","pressure"],"where":"Netflix","blurb":"Inmates in a vertical prison get their food from a platform that descends level by level."},{"id":"cube","title":"Cube","year":1997,"type":"film","dread":3,"pace":"medium","tags":["pressure","anxiety","friends"],"blurb":"Strangers wake up inside a maze of deadly rooms."},{"id":"ritual","title":"The Ritual","year":2017,"type":"film","dread":4,"pace":"medium","tags":["grief","friends","guilt"],"where":"Netflix","blurb":"Friends hiking in Sweden in memory of a lost friend are stalked by something in the forest."},{"id":"hishouse","title":"His House","year":2020,"type":"film","dread":3,"pace":"medium","tags":["grief","guilt","social"],"where":"Netflix","blurb":"A refugee couple finds something sinister in the house they are given to start over."},{"id":"relic","title":"Relic","year":2020,"type":"film","dread":3,"pace":"slow","tags":["grief","family","anxiety"],"blurb":"Three generations of women face a grandmother's decline in an eerie family home."},{"id":"janedoe","title":"The Autopsy of Jane Doe","year":2016,"type":"film","dread":3,"pace":"medium","tags":["curious","adrenaline","anxiety"],"blurb":"A father and son who run a morgue examine an unidentified body that holds disturbing secrets."},{"id":"undershadow","title":"Under the Shadow","year":2016,"type":"film","dread":3,"pace":"slow","tags":["anxiety","family","loneliness"],"where":"Netflix","blurb":"A mother and daughter in 1980s Tehran are haunted during wartime."},{"id":"bhoolbhulaiyaa","title":"Bhool Bhulaiyaa","year":2007,"type":"film","dread":1,"pace":"medium","tags":["fun","family","friends","curious"],"blurb":"A couple moves into an ancestral mansion said to be haunted, and a psychiatrist investigates."},{"id":"raaz","title":"Raaz","year":2002,"type":"film","dread":3,"pace":"medium","tags":["breakup","anxiety","guilt"],"blurb":"A couple trying to save their marriage moves to a house in the hills with a ghostly presence."},{"id":"chhorii","title":"Chhorii","year":2021,"type":"film","dread":3,"pace":"slow","tags":["family","paranoia","anxiety"],"where":"Prime Video","blurb":"A pregnant woman and her husband hide out in a remote house in a sugarcane field, where something is wrong."},{"id":"bramayugam","title":"Bramayugam","year":2024,"type":"film","dread":3,"pace":"slow","tags":["curious","guilt","paranoia"],"where":"SonyLIV (India)","blurb":"A black-and-white folk horror about a singer on the run who takes shelter in a mysterious mansion in 17th-century Kerala."},{"id":"kwaidan","title":"Kwaidan","year":1964,"type":"film","dread":2,"pace":"slow","tags":["curious","nostalgia"],"blurb":"Four Japanese ghost stories told as a stylised anthology."},{"id":"darkwater","title":"Dark Water","year":2002,"type":"film","dread":3,"pace":"slow","tags":["family","grief","loneliness"],"blurb":"A single mother and her daughter move into an apartment with a leaking ceiling and a secret."},{"id":"pulse","title":"Pulse","year":2001,"type":"film","dread":4,"pace":"slow","tags":["loneliness","anxiety","curious"],"blurb":"Ghosts seem to be crossing over through the internet, leaving people lonelier and lonelier."},{"id":"suspiria","title":"Suspiria","year":1977,"type":"film","dread":4,"pace":"medium","tags":["curious","social","paranoia"],"blurb":"An American dancer arrives at a European ballet academy with a sinister secret."},{"id":"perfectblue","title":"Perfect Blue","year":1997,"type":"film","dread":3,"pace":"medium","tags":["pressure","anxiety","paranoia","social"],"blurb":"A pop idol turned actress is haunted by a stalker and her own fading identity."},{"id":"shutter","title":"Shutter","year":2004,"type":"film","dread":4,"pace":"medium","tags":["guilt","friends","curious"],"blurb":"A photographer couple finds ghostly shapes in their photographs after a car accident."},{"id":"sixthsense","title":"The Sixth Sense","year":1999,"type":"film","dread":3,"pace":"slow","tags":["grief","family","loneliness"],"blurb":"A child psychologist helps a boy who sees dead people."},{"id":"mist","title":"The Mist","year":2007,"type":"film","dread":4,"pace":"medium","tags":["adrenaline","social","family"],"blurb":"Townspeople trapped in a supermarket face creatures hidden in a thick fog."},{"id":"misery","title":"Misery","year":1990,"type":"film","dread":4,"pace":"medium","tags":["anxiety","loneliness","burnout","rage"],"blurb":"A novelist injured in a blizzard is rescued by his number one fan, who won't let him leave."},{"id":"carrie","title":"Carrie","year":1976,"type":"film","dread":3,"pace":"medium","tags":["social","rage","family"],"blurb":"A shy teenager with telekinetic powers is pushed too far at her prom."},{"id":"jenniferbody","title":"Jennifer's Body","year":2009,"type":"film","dread":2,"pace":"fast","tags":["friends","rage","fun","social"],"blurb":"A possessed cheerleader turns on the boys of her town while her best friend tries to stop her."},{"id":"dragmetohell","title":"Drag Me to Hell","year":2009,"type":"film","dread":3,"pace":"fast","tags":["pressure","fun","adrenaline","guilt"],"blurb":"A loan officer who refuses an old woman's extension finds herself cursed."},{"id":"zombieland","title":"Zombieland","year":2009,"type":"film","dread":1,"pace":"fast","tags":["fun","friends","adrenaline","boredom"],"blurb":"Four survivors road-trip through a zombie-ridden America with a list of rules."},{"id":"tremors","title":"Tremors","year":1990,"type":"film","dread":1,"pace":"fast","tags":["fun","friends","adrenaline","boredom"],"blurb":"Two handymen in a tiny desert town battle giant underground worms."},{"id":"americanwerewolf","title":"An American Werewolf in London","year":1981,"type":"film","dread":3,"pace":"medium","tags":["fun","friends","nostalgia"],"blurb":"Two American backpackers are attacked on the English moors, with grim consequences."},{"id":"candyman","title":"Candyman","year":1992,"type":"film","dread":4,"pace":"medium","tags":["social","curious","paranoia"],"blurb":"A grad student investigating an urban legend summons a hook-handed ghost."},{"id":"nosferatu","title":"Nosferatu","year":1922,"type":"film","dread":2,"pace":"slow","tags":["curious","nostalgia","loneliness"],"blurb":"A silent-era vampire classic about a count who brings death to a German port town."},{"id":"frankenstein","title":"Frankenstein","year":1931,"type":"film","dread":2,"pace":"medium","tags":["loneliness","nostalgia","curious"],"blurb":"A scientist's creation is feared, misunderstood and hunted in the classic monster film."},{"id":"nightmarebeforexmas","title":"The Nightmare Before Christmas","year":1993,"type":"film","dread":1,"pace":"medium","tags":["cozy","nostalgia","fun","boredom"],"blurb":"The Pumpkin King of Halloween Town gets bored and decides to take over Christmas."},{"id":"silenthill2","title":"Silent Hill 2","year":2001,"type":"game","dread":4,"pace":"slow","tags":["grief","guilt","loneliness","breakup"],"blurb":"A widower follows a letter from his dead wife to a fog-covered town."},{"id":"re4","title":"Resident Evil 4","year":2005,"type":"game","dread":2,"pace":"fast","tags":["adrenaline","fun","rage","burnout"],"where":"PC (Steam), PlayStation, Xbox, Switch","blurb":"A government agent rescues the president's daughter from a creepy village."},{"id":"amnesia","title":"Amnesia: The Dark Descent","year":2010,"type":"game","dread":5,"pace":"slow","tags":["anxiety","paranoia","loneliness"],"where":"PC (Steam), PlayStation, Xbox, Switch","blurb":"You explore a dark castle with no weapons and a fragile mind."},{"id":"alieniso","title":"Alien: Isolation","year":2014,"type":"game","dread":5,"pace":"slow","tags":["anxiety","pressure","adrenaline","loneliness"],"where":"PC (Steam), PlayStation, Xbox, Switch","blurb":"You are hunted by one unkillable alien on a derelict space station."},{"id":"deadspace","title":"Dead Space","year":2008,"type":"game","dread":4,"pace":"medium","tags":["adrenaline","rage","pressure"],"blurb":"An engineer fights monsters aboard a drifting mining ship."},{"id":"untildawn","title":"Until Dawn","year":2015,"type":"game","dread":3,"pace":"medium","tags":["friends","fun","nostalgia","boredom"],"where":"PlayStation (PS4 original; PS5 and PC remake)","blurb":"Eight friends survive a night on a snowy mountain, and your choices decide who lives."},{"id":"littlenightmares","title":"Little Nightmares","year":2017,"type":"game","dread":2,"pace":"slow","tags":["cozy","anxiety","curious","loneliness"],"where":"PC (Steam), PlayStation, Xbox, Switch","blurb":"A tiny girl in a yellow raincoat escapes a sinister floating resort."},{"id":"phasmophobia","title":"Phasmophobia","year":2020,"type":"game","dread":3,"pace":"medium","tags":["friends","fun","curious"],"where":"PC (Steam)","blurb":"Teams of ghost hunters investigate haunted houses with real tools and shaky nerves."},{"id":"fnaf","title":"Five Nights at Freddy's","year":2014,"type":"game","dread":3,"pace":"fast","tags":["fun","friends","nostalgia","paranoia"],"where":"PC (Steam), PlayStation, Xbox, Switch, mobile","blurb":"A night guard has to survive animatronic mascots at a pizzeria."},{"id":"soma","title":"SOMA","year":2015,"type":"game","dread":3,"pace":"slow","tags":["curious","loneliness","anxiety","grief"],"where":"PC (Steam), PlayStation, Xbox","blurb":"An underwater research facility raises questions about what makes you you."},{"id":"oxenfree","title":"Oxenfree","year":2016,"type":"game","dread":1,"pace":"slow","tags":["friends","nostalgia","cozy","curious"],"where":"PC (Steam), PlayStation, Xbox, Switch","blurb":"Teens on an island open a rift to something spooky using a radio."},{"id":"fatalframe2","title":"Fatal Frame II: Crimson Butterfly","year":2003,"type":"game","dread":4,"pace":"slow","tags":["grief","family","loneliness","curious"],"blurb":"Twin sisters explore a cursed village armed with a camera that photographs ghosts."},{"id":"bloodborne","title":"Bloodborne","year":2015,"type":"game","dread":3,"pace":"fast","tags":["rage","burnout","pressure","adrenaline"],"where":"PlayStation 4 (plays on PS5)","blurb":"A hunter fights through a gothic city in a punishing action game."},{"id":"re2remake","title":"Resident Evil 2 (2019)","year":2019,"type":"game","dread":3,"pace":"fast","tags":["adrenaline","pressure","rage"],"where":"PC (Steam), PlayStation, Xbox","blurb":"A rookie cop and a college student fight through a zombie-filled Raccoon City."},{"id":"re7","title":"Resident Evil 7: Biohazard","year":2017,"type":"game","dread":4,"pace":"medium","tags":["family","anxiety","paranoia","adrenaline"],"where":"PC (Steam), PlayStation, Xbox","blurb":"A man searches for his missing wife and ends up trapped at a swamp-side family estate."},{"id":"re8","title":"Resident Evil Village","year":2021,"type":"game","dread":3,"pace":"fast","tags":["family","adrenaline","fun"],"where":"PC (Steam), PlayStation, Xbox","blurb":"A father searches for his kidnapped daughter in a village ruled by monstrous lords."},{"id":"silenthill1","title":"Silent Hill","year":1999,"type":"game","dread":4,"pace":"slow","tags":["family","curious","anxiety"],"blurb":"A father searches for his missing daughter in a fog-covered town."},{"id":"outlast","title":"Outlast","year":2013,"type":"game","dread":4,"pace":"medium","tags":["anxiety","paranoia","adrenaline","curious"],"where":"PC (Steam), PlayStation, Xbox, Switch","blurb":"A journalist investigates an abandoned asylum armed with only a camcorder."},{"id":"deadbydaylight","title":"Dead by Daylight","year":2016,"type":"game","dread":3,"pace":"fast","tags":["friends","fun","adrenaline"],"where":"PC (Steam), PlayStation, Xbox, Switch, mobile","blurb":"Survivors try to escape a killer in an asymmetric multiplayer game."},{"id":"lethalcompany","title":"Lethal Company","year":2023,"type":"game","dread":2,"pace":"fast","tags":["friends","fun","pressure","burnout"],"where":"PC (Steam)","blurb":"A co-op game where you scavenge abandoned moons for scrap to meet a company quota."},{"id":"alanwake","title":"Alan Wake","year":2010,"type":"game","dread":3,"pace":"medium","tags":["burnout","anxiety","curious"],"where":"PC (Steam), PlayStation, Xbox (as Alan Wake Remastered)","blurb":"A blocked thriller writer searches for his missing wife in a small town menaced by darkness."},{"id":"evilwithin","title":"The Evil Within","year":2014,"type":"game","dread":4,"pace":"medium","tags":["adrenaline","anxiety","rage"],"where":"PC (Steam), PlayStation, Xbox","blurb":"A detective is dragged into a nightmare world by a monstrous force."},{"id":"dredge","title":"Dredge","year":2023,"type":"game","dread":2,"pace":"slow","tags":["cozy","loneliness","curious","boredom"],"where":"PC (Steam), PlayStation, Xbox, Switch","blurb":"A fishing game where something eerie waits in the water after dark."},{"id":"luigismansion3","title":"Luigi's Mansion 3","year":2019,"type":"game","dread":1,"pace":"medium","tags":["cozy","fun","friends","nostalgia"],"where":"Nintendo Switch","blurb":"Luigi explores a haunted hotel with a vacuum and a gooey twin."},{"id":"edithfinch","title":"What Remains of Edith Finch","year":2017,"type":"game","dread":1,"pace":"slow","tags":["grief","family","cozy","curious"],"where":"PC (Steam), PlayStation, Xbox, Switch","blurb":"A young woman explores her family's strange house to learn how each relative died."},{"id":"gonehome","title":"Gone Home","year":2013,"type":"game","dread":1,"pace":"slow","tags":["family","nostalgia","curious","cozy"],"where":"PC (Steam), PlayStation, Xbox, Switch","blurb":"You explore an empty house in 1995 to work out where your family went."},{"id":"cultlamb","title":"Cult of the Lamb","year":2022,"type":"game","dread":1,"pace":"fast","tags":["fun","cozy","rage"],"where":"PC (Steam), PlayStation, Xbox, Switch","blurb":"A sacrificed lamb starts a cult in a cute-but-dark action game."},{"id":"inscryption","title":"Inscryption","year":2021,"type":"game","dread":2,"pace":"medium","tags":["curious","boredom","rage"],"where":"PC (Steam), PlayStation, Xbox, Switch","blurb":"A creepy card-battling game that keeps changing its own rules."},{"id":"ln2","title":"Little Nightmares II","year":2021,"type":"game","dread":2,"pace":"slow","tags":["cozy","anxiety","curious","loneliness"],"where":"PC (Steam), PlayStation, Xbox, Switch","blurb":"A boy in a paper bag and a girl in a yellow raincoat escape a twisted world."},{"id":"obradinn","title":"Return of the Obra Dinn","year":2018,"type":"game","dread":2,"pace":"slow","tags":["curious","boredom"],"where":"PC (Steam), PlayStation, Xbox, Switch","blurb":"An insurance investigator works out what happened to a ghost ship's crew."},{"id":"lastofus","title":"The Last of Us","year":2013,"type":"game","dread":3,"pace":"medium","tags":["grief","family","adrenaline","guilt"],"where":"PlayStation (PS3 original, PS4 Remastered; PS5 and PC as Part I)","blurb":"A hardened survivor escorts a teenage girl across a post-outbreak America."},{"id":"detention","title":"Detention","year":2017,"type":"game","dread":3,"pace":"slow","tags":["pressure","guilt","social","curious"],"where":"PC (Steam), PlayStation, Switch","blurb":"Students in 1960s Taiwan are trapped in a haunted school."},{"id":"darkwood","title":"Darkwood","year":2017,"type":"game","dread":4,"pace":"slow","tags":["loneliness","paranoia","anxiety"],"where":"PC (Steam), PlayStation, Xbox, Switch","blurb":"You survive in a hostile forest, scavenging by day and hiding by night."},{"id":"layersoffear","title":"Layers of Fear","year":2016,"type":"game","dread":3,"pace":"slow","tags":["pressure","anxiety","curious"],"where":"PC (Steam), PlayStation, Xbox","blurb":"A painter descends into madness in a shifting Victorian mansion."},{"id":"hillhouse","title":"The Haunting of Hill House","year":2018,"type":"series","dread":3,"pace":"slow","tags":["grief","family","guilt"],"where":"Netflix","blurb":"Siblings are haunted by their childhood home and the loss that followed."},{"id":"midnightmass","title":"Midnight Mass","year":2021,"type":"series","dread":3,"pace":"slow","tags":["guilt","grief","social","loneliness"],"where":"Netflix","blurb":"A remote island community is changed by the arrival of a charismatic new priest."},{"id":"hannibal","title":"Hannibal","year":2013,"type":"series","dread":4,"pace":"slow","tags":["curious","anxiety","rage","guilt"],"blurb":"A gifted profiler is drawn into a dangerous friendship with a refined killer."},{"id":"kingdom","title":"Kingdom","year":2019,"type":"series","dread":3,"pace":"fast","tags":["adrenaline","pressure","family"],"where":"Netflix","blurb":"A crown prince faces a plague that raises the dead in historic Korea."},{"id":"overthegardenwall","title":"Over the Garden Wall","year":2014,"type":"series","dread":1,"pace":"slow","tags":["cozy","nostalgia","boredom","loneliness"],"blurb":"Two brothers wander a strange autumn forest trying to find their way home."},{"id":"ghoul","title":"Ghoul","year":2018,"type":"series","dread":3,"pace":"medium","tags":["paranoia","pressure","curious"],"where":"Netflix","blurb":"A young interrogator at a detention centre meets a prisoner who may be a monster."},{"id":"shadowstv","title":"What We Do in the Shadows","year":2019,"type":"series","dread":1,"pace":"fast","tags":["fun","friends","boredom","burnout"],"blurb":"Vampire flatmates in Staten Island muddle through modern life."},{"id":"strangerthings","title":"Stranger Things","year":2016,"type":"series","dread":2,"pace":"medium","tags":["nostalgia","friends","fun","family"],"where":"Netflix","blurb":"Kids in 1980s Indiana face monsters from another dimension after a friend disappears."},{"id":"blymanor","title":"The Haunting of Bly Manor","year":2020,"type":"series","dread":2,"pace":"slow","tags":["grief","loneliness","breakup","family"],"where":"Netflix","blurb":"A young au pair cares for two children in an English manor haunted by its past."},{"id":"usher","title":"The Fall of the House of Usher","year":2023,"type":"series","dread":3,"pace":"medium","tags":["family","guilt","rage"],"where":"Netflix","blurb":"The heirs of a pharmaceutical dynasty meet grim fates, each tied to a past crime."},{"id":"wednesday","title":"Wednesday","year":2022,"type":"series","dread":1,"pace":"medium","tags":["fun","friends","social","boredom"],"where":"Netflix","blurb":"Wednesday Addams investigates a mystery at a school for outcasts."},{"id":"pennydreadful","title":"Penny Dreadful","year":2014,"type":"series","dread":3,"pace":"slow","tags":["curious","loneliness","guilt"],"blurb":"Victorian London's literary monsters cross paths in a gothic drama."},{"id":"ahs","title":"American Horror Story","year":2011,"type":"series","dread":3,"pace":"fast","tags":["fun","friends","curious"],"blurb":"An anthology series that tells a different horror story each season."},{"id":"twinpeaks","title":"Twin Peaks","year":1990,"type":"series","dread":2,"pace":"slow","tags":["curious","nostalgia","loneliness"],"blurb":"An FBI agent investigates the murder of a homecoming queen in a strange small town."},{"id":"xfiles","title":"The X-Files","year":1993,"type":"series","dread":2,"pace":"medium","tags":["curious","nostalgia","paranoia"],"blurb":"Two FBI agents investigate unexplained cases and a vast conspiracy."},{"id":"buffy","title":"Buffy the Vampire Slayer","year":1997,"type":"series","dread":1,"pace":"medium","tags":["friends","fun","nostalgia","social"],"blurb":"A high schooler is chosen to fight vampires while surviving high school."},{"id":"supernatural","title":"Supernatural","year":2005,"type":"series","dread":2,"pace":"medium","tags":["family","grief","friends","nostalgia"],"blurb":"Two brothers road-trip through America hunting demons and ghosts."},{"id":"goosebumps","title":"Goosebumps","year":1995,"type":"series","dread":1,"pace":"fast","tags":["nostalgia","cozy","fun"],"blurb":"The original anthology series of kid-friendly scary stories."},{"id":"afraidofthedark","title":"Are You Afraid of the Dark?","year":1990,"type":"series","dread":1,"pace":"medium","tags":["nostalgia","friends","cozy"],"blurb":"A group of kids tell scary stories around a campfire."},{"id":"courage","title":"Courage the Cowardly Dog","year":1999,"type":"series","dread":1,"pace":"fast","tags":["fun","nostalgia","anxiety","boredom"],"blurb":"A timid dog protects his owners from supernatural threats in the middle of nowhere."},{"id":"gravityfalls","title":"Gravity Falls","year":2012,"type":"series","dread":1,"pace":"medium","tags":["cozy","curious","nostalgia","family"],"blurb":"Twin siblings spend a summer in a town full of oddities."},{"id":"castlevania","title":"Castlevania","year":2017,"type":"series","dread":2,"pace":"fast","tags":["rage","grief","adrenaline"],"where":"Netflix","blurb":"A monster hunter takes on Dracula in an animated gothic series."},{"id":"typewriter","title":"Typewriter","year":2019,"type":"series","dread":3,"pace":"medium","tags":["friends","curious","family"],"where":"Netflix","blurb":"Three young friends in Goa plan to search an old villa for ghosts, but a new family moving in stirs up its buried past."},{"id":"sweethome","title":"Sweet Home","year":2020,"type":"series","dread":3,"pace":"fast","tags":["loneliness","adrenaline","pressure"],"where":"Netflix","blurb":"Residents of an apartment building fight monsters made from human desires."},{"id":"allofusaredead","title":"All of Us Are Dead","year":2022,"type":"series","dread":3,"pace":"fast","tags":["pressure","friends","adrenaline","social"],"where":"Netflix","blurb":"Students trapped in a school fight a zombie outbreak."},{"id":"hellbound","title":"Hellbound","year":2021,"type":"series","dread":3,"pace":"slow","tags":["social","guilt","curious"],"where":"Netflix","blurb":"Supernatural beings condemn people to hell, and a cult grows around it."},{"id":"yellowjackets","title":"Yellowjackets","year":2021,"type":"series","dread":4,"pace":"medium","tags":["friends","guilt","social"],"blurb":"A girls' soccer team survives a plane crash in the wilderness, and the aftermath follows them for decades."},{"id":"sabrina","title":"Chilling Adventures of Sabrina","year":2018,"type":"series","dread":2,"pace":"fast","tags":["fun","friends","social","breakup"],"where":"Netflix","blurb":"A half-witch teenager balances high school with dark magic."},{"id":"lockekey","title":"Locke & Key","year":2020,"type":"series","dread":2,"pace":"medium","tags":["family","grief","friends","curious"],"where":"Netflix","blurb":"Siblings move into a house full of magical keys after their father's death."}];
+/*CATALOG_END*/
+/*MOODS_START*/
+const MOOD_PATTERNS={"grief":"\\b(sad|cry(?:ing)?|grief|griev\\w*|miss(?:ing)? (?:him|her|them|home|someone|my)|lost (?:my|a)|heartbroken|funeral|passed away|died)\\b","breakup":"\\b(ghost(?:ed|ing)|breakup|broke up|dumped|situationship|rejected|left on read|my ex)\\b","burnout":"\\b(burn(?:ed|t)?[ -]?out|exhaust\\w*|overworked|boss|deadline|meeting|circle back|tired|no sleep|zero sleep|sleep[- ]deprived|drained)\\b","pressure":"\\b(exams?|viva|assignments?|backlogs?|placements?|interviews?|semester|attendance|cgpa|resume|internships?|results?|rejection)\\b","anxiety":"\\b(anxi\\w*|overthink\\w*|panic\\w*|worried|worry|nervous|stress\\w*|can'?t stop thinking|spiral\\w*)\\b","loneliness":"\\b(lonely|alone|no one|nobody|friendless|isolated|homesick)\\b","rage":"\\b(angry|furious|annoyed|rage|hate|pissed|irritated|fed up)\\b","boredom":"\\b(bored|boring|nothing to do|meh|monday|same old|routine|distract\\w*|killing time|time to kill)\\b","fun":"\\b(happy|great|party|weekend|excited|celebrat\\w*|amazing|laugh\\w*|funny|comed\\w*|silly|giggl\\w*)\\b","nostalgia":"\\b(nostalg\\w*|childhood|old days|remember when|throwback)\\b","adrenaline":"\\b(adrenaline|thrill\\w*|intense|edge of (?:my|the) seat|heart[- ]?pounding|action[- ]packed|chase|survival)\\b","curious":"\\b(mystery|mysteries|twist\\w*|mind[- ]?bend\\w*|puzzle\\w*|theor(?:y|ies)|trippy|strange)\\b","family":"\\b(family|mom|mum|mother|dad|father|parents?|siblings?|brother|sister|grandma|grandmother|grandpa|grandfather)\\b","cozy":"\\b(co[sz][yi]|cuddl\\w*|snuggl\\w*|blanket|rain\\w*|candle\\w*|hot chocolate|chai|autumn)\\b","guilt":"\\b(guilt\\w*|regret\\w*|ashamed|shame|my fault|feel bad|screwed up|messed up)\\b","paranoia":"\\b(paranoi\\w*|being watched|watching me|followed|stalk\\w*|suspicious|trust issues)\\b"};const MOOD_FRIENDS="\\b(friends?|roommates?|squad|gang|group|with (?:my )?(?:bf|gf|partner|siblings?))\\b";
+/*MOODS_END*/
+/*SCARE_START*/
+const scareWindow=function scareWindow(list, tol, min) {
+  min = min || 8;
+  var lo = Math.max(1, tol - 1);
+  var out = list.filter(function (c) { return c.dread <= tol && c.dread >= lo; });
+  while (out.length < min && lo > 1) {
+    lo--;
+    out = list.filter(function (c) { return c.dread <= tol && c.dread >= lo; });
+  }
+  if (out.length < Math.min(min, 6)) {
+    out = list.slice().sort(function (a, b) {
+      return Math.abs(a.dread - tol) - Math.abs(b.dread - tol) || a.dread - b.dread || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0);
+    }).slice(0, Math.min(list.length, 6));
+  }
+  return out;
+};
+/*SCARE_END*/
+/*INTENT_START*/
+const INTENT={"gentle":"\\b(?:(?:not|nothing|no)\\s+(?:too\\s+|that\\s+|very\\s+|so\\s+|overly\\s+)?(?:scary|intense|gory|heavy|disturbing)|no\\s+(?:jump\\s?scares?|gore|blood)|(?:scare|scared|spook\\w*|freak\\w*)\\s+(?:so\\s+)?easily|easily\\s+(?:scared|spooked|frightened|freaked)|(?:don'?t|do not|can'?t|cannot|won'?t)\\s+(?:really\\s+)?(?:like|want|handle|do|watch|take|enjoy)\\s+(?:\\w+\\s+){0,2}(?:scary|horror|gore|jump\\s?scares?|violence)|(?:hate|dislike|avoid)\\s+(?:\\w+\\s+){0,2}(?:scary|horror|gore|jump\\s?scares?)|chicken|wimp|scaredy|coward|co[sz][yi]|cuddl\\w*|comfort\\w*|wholesome|gentle|light-?hearted|easy\\s+watch|chill\\s+(?:night|vibes?|watch)|relax\\w*|unwind|easy\\s+on\\s+the\\s+(?:scares?|gore|horror))\\b","scare":"\\b(?:(?:scare|terrify|terrorize|frighten|horrify|petrify|traumatize|disturb|spook|freak|wreck|ruin)\\s+(?:the\\s+(?:pants|crap|shit|hell|life|daylights)\\s+(?:off|out\\s+of)\\s+)?(?:me|us)|(?:want|wanna|need|ready|in the mood|down|dying)\\s+(?:\\w+\\s+){0,3}(?:to\\s+)?(?:be|get|feel)\\s+(?:\\w+\\s+){0,2}(?:scared|terrified|frightened|horrified|petrified|spooked|traumati[sz]ed)|(?:something|anything|a movie|a game|a show|stuff)\\s+(?:really\\s+|super\\s+|very\\s+|so\\s+|properly\\s+|genuinely\\s+|actually\\s+)?(?:scary|terrifying|frightening|horrifying|disturbing|brutal|hardcore)|(?:a|some|any)\\s+(?:really\\s+|super\\s+|very\\s+|properly\\s+|genuinely\\s+)?(?:scary|terrifying|frightening|horrifying|disturbing)\\s+(?:movie|film|game|show|series|story)|(?:shit|crap|poop|pee|piss|wet)\\w*\\s+(?:my(?:self)?|me|our)(?:\\s+pants)?|pants\\b.{0,24}\\b(?:shit|crap|wet|soil)|nothing\\s+(?:ever\\s+)?(?:scares|frightens|terrifies)\\s+me|(?:make|let)\\s+me\\s+(?:scream|jump|cry|shake|sweat)|keep\\s+me\\s+up|give\\s+me\\s+nightmares|bring\\s+(?:it\\s+on|the\\s+fear))\\b"};
+const detectIntent=function detectIntent(text) {
+  var s = String(text || '');
+  if (new RegExp(INTENT.gentle, 'i').test(s)) return 'gentle';
+  if (new RegExp(INTENT.scare, 'i').test(s)) return 'scare';
+  return null;
+};
+/*INTENT_END*/
+const byId=Object.fromEntries(CATALOG.map(c=>[c.id,c]));
+const TYPE_LABEL={film:'FILM',game:'GAME',series:'SERIES'};
+const TYPE_COLOR={film:'#B3121A',game:'#0E8A7A',series:'#C98A1A'};
+const SKULL=(on)=>`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5c4.7 0 7.5 3 7.5 7 0 2.4-1 3.9-2.5 4.9V18a1.5 1.5 0 0 1-1.5 1.5h-7A1.5 1.5 0 0 1 7 18v-3.6C5.5 13.4 4.5 11.9 4.5 9.5c0-4 2.8-7 7.500-7z" fill="${on?'#F2EAD6':'none'}" stroke="${on?'#0A0A0F':'#8a8478'}" stroke-width="1.6" stroke-linejoin="round"/><circle cx="9" cy="10.5" r="1.9" fill="${on?'#0A0A0F':'#8a8478'}"/><circle cx="15" cy="10.5" r="1.9" fill="${on?'#0A0A0F':'#8a8478'}"/><path d="M10.5 15.5v3M13.5 15.5v3" stroke="${on?'#0A0A0F':'#8a8478'}" stroke-width="1.4" stroke-linecap="round"/></svg>`;
+const skulls=n=>Array.from({length:5},(_,i)=>SKULL(i<n)).join('');
+const TOL_LABEL=['','Gentle (I scare easily)','Mild','Medium','Spicy','Bring it on'];
+
+/* ---------- where to watch / play ---------- */
+const SPOOKY={
+ screen:["The streaming spirits are silent about this one. Even the clerk doesn't know where this tape is hiding...","This tape has slipped off every shelf I know. Some say it only appears on whichever service you check last.","Where to watch? The clerk dares not guess. The tape drifts between platforms at night."],
+ game:["The ghost in the machine won't say where this one lives. The clerk has no idea...","This one wanders between storefronts like a restless spirit. The clerk can't say where it sleeps tonight.","The clerk consults the crystal ball: static. Only the oracle (the links below) knows where to play this."]};
+function jwRegion(){const m=(navigator.language||'en-IN').match(/-([A-Za-z]{2})$/);let r=m?m[1].toLowerCase():'in';return r==='gb'?'uk':r}
+function whereInfo(c){
+  const game=c.type==='game',reg=jwRegion();
+  const label=game?'WHERE TO PLAY':'WHERE TO WATCH';
+  const body=c.where?`${esc(c.where)} <span class="wnote">(availability changes by country and over time)</span>`:`<span class="spooky">${esc(SPOOKY[game?'game':'screen'][hash(c.id)%3])}</span>`;
+  const links=game
+    ?[['SEARCH STEAM ↗','https://store.steampowered.com/search/?term='+encodeURIComponent(c.title)],['SEARCH THE WEB ↗','https://www.google.com/search?q='+encodeURIComponent(c.title+' '+c.year+' game where to play')]]
+    :[['JUSTWATCH ('+reg.toUpperCase()+') ↗','https://www.justwatch.com/'+reg+'/search?q='+encodeURIComponent(c.title)],['SEARCH THE WEB ↗','https://www.google.com/search?q='+encodeURIComponent(c.title+' '+c.year+' where to watch')]];
+  return{label,body,links:links.map(l=>`<a class="wlink" href="${l[1]}" target="_blank" rel="noopener noreferrer">${esc(l[0])}</a>`).join('')+`<button type="button" class="wlink wcopy" data-url="${esc(links[0][1])}">COPY LINK</button>`};
+}
+/* external links: some preview windows block new tabs, so try to open one and, if blocked, show the link to copy */
+async function copyText(text){
+  try{if(navigator.clipboard&&navigator.clipboard.writeText){await navigator.clipboard.writeText(text);return true}}catch(e){}
+  try{const ta=document.createElement('textarea');ta.value=text;ta.setAttribute('readonly','');ta.style.cssText='position:fixed;left:-9999px;top:0';document.body.appendChild(ta);ta.select();const ok=document.execCommand('copy');ta.remove();return !!ok}catch(e){return false}
+}
+function showUrlBox(row,url,msg){
+  const wl=row&&row.querySelector('.wl');if(!wl)return;
+  let box=row.querySelector('.wfallback');
+  if(!box){box=document.createElement('div');box.className='wfallback';box.setAttribute('role','status');wl.after(box)}
+  box.innerHTML=`<span class="wnote">${esc(msg)}</span><div class="wcopyrow"><input class="wurl" readonly value="${esc(url)}" aria-label="Link to copy"><button type="button" class="wlink wcopy" data-url="${esc(url)}">COPY</button></div>`;
+  const inp=box.querySelector('input');inp.focus();inp.select();
+}
+document.addEventListener('click',async e=>{
+  const a=e.target.closest&&e.target.closest('a.wlink[href]');
+  if(a){
+    if(e.ctrlKey||e.metaKey||e.shiftKey||e.altKey||e.button!==0)return;      // modified clicks: let the browser do its thing
+    e.preventDefault();
+    const w=window.open(a.href,'_blank');
+    if(w){try{w.opener=null}catch(_){}return}                                // opened fine
+    showUrlBox(a.closest('[data-where]')||a.parentElement,a.href,'Your browser blocked the new tab here (some preview windows do). Copy the link and open it in a new tab:');
+    return;
+  }
+  const c=e.target.closest&&e.target.closest('button.wcopy');
+  if(c){
+    const url=c.dataset.url,row=c.closest('[data-where]')||c.parentElement;
+    if(await copyText(url)){const t=c.textContent;c.textContent='COPIED ✓';setTimeout(()=>{c.textContent=t},1600)}
+    else showUrlBox(row,url,'Copying is blocked here. Select the link and press Ctrl+C (long-press it on a phone):');
+  }
+});
+
+function whereRow(c){const w=whereInfo(c);return `<div data-where="${c.id}"><dt>${w.label}</dt><dd><span class="wbody">${w.body}</span><div class="wl">${w.links}</div></dd></div>`}
+
+/* live availability (movies and series), from /api/where -> TMDB watch providers, sourced from JustWatch */
+const liveCache=new Map();let liveOff=false;
+function tmdbRegion(){const r=jwRegion().toUpperCase();return r==='UK'?'GB':r}
+function showAttrib(){const a=$('attrib');if(a)a.hidden=false}
+function applyLive(j,body){
+  const reg=esc(j.region||tmdbRegion());
+  if(j.status==='ok'){
+    const parts=[];
+    if((j.flatrate||[]).length)parts.push(`<b>Streaming on:</b> ${j.flatrate.map(esc).join(', ')}`);
+    const free=[...new Set((j.free||[]).concat(j.ads||[]))];
+    if(free.length)parts.push(`<b>Free (maybe with ads):</b> ${free.map(esc).join(', ')}`);
+    const rb=[...new Set((j.rent||[]).concat(j.buy||[]))];
+    if(rb.length)parts.push(`<b>${(j.flatrate||[]).length?'Also to rent or buy':'Not on subscription streaming here. Rent or buy'}:</b> ${rb.map(esc).join(', ')}`);
+    body.innerHTML=`<span class="chip2">LIVE · ${reg}</span> ${parts.join('<br>')}<br><span class="wnote">via JustWatch (TMDB). Availability changes often.</span>`;
+    showAttrib();
+  }else if(j.status==='none'){
+    body.innerHTML=`<span class="spooky">The spirits find nothing listed for ${reg} right now. This tape may be haunting another country.</span>`;
+    showAttrib();
+  } // 'unknown' (or anything else) keeps the existing line
+}
+async function liveWhere(c,row){
+  if(!c||c.type==='game'||!row||liveOff)return;
+  const reg=tmdbRegion(),k=c.id+'|'+reg,body=row.querySelector('.wbody');
+  if(!body)return;
+  let j=liveCache.get(k);
+  if(!j){
+    const hint=document.createElement('span');hint.className='wnote wfetch';hint.textContent=' checking live availability...';body.appendChild(hint);
+    let r;
+    try{
+      const ctl=new AbortController();const to=setTimeout(()=>ctl.abort(),8000);
+      r=await fetch('/api/where?id='+encodeURIComponent(c.id)+'&region='+encodeURIComponent(reg),{signal:ctl.signal});clearTimeout(to);
+    }catch(e){liveOff=true;hint.remove();return}      // no backend here (file://, preview, offline): stop asking this session
+    if(r.status===503)liveOff=true;                    // backend exists but TMDB_API_KEY is not set
+    if(!r.ok){hint.remove();return}
+    try{j=await r.json()}catch(e){hint.remove();return}
+    liveCache.set(k,j);hint.remove();
+  }
+  if(!row.isConnected)return;                          // the user already moved on to another tape
+  applyLive(j,body);
+}
+function hydrateWhere(root){root.querySelectorAll('[data-where]').forEach(el=>liveWhere(byId[el.dataset.where],el))}
+
+/* ---------- clerk ghost ---------- */
+const GHOST=`<svg viewBox="0 0 200 230" data-mood="judging">
+<path d="M40 200 V96 C40 40 160 40 160 96 V200 q-15 16 -30 0 q-15 16 -30 0 q-15 16 -30 0 q-15 16 -30 0Z" fill="#F4F1EA" stroke="#0A0A0F" stroke-width="4" stroke-linejoin="round"/>
+<path d="M130 60 C150 70 160 84 160 98 V200 q-15 16 -30 0Z" fill="#D9D5CB" opacity=".55"/>
+<rect x="58" y="146" width="44" height="24" rx="3" fill="#FFF1B8" stroke="#0A0A0F" stroke-width="2.4"/><text x="80" y="163" text-anchor="middle" font-family="VT323, monospace" font-size="15" fill="#0A0A0F">STAFF</text>
+<g transform="rotate(-10 150 150)"><rect x="132" y="132" width="50" height="34" rx="4" fill="#1A1A22" stroke="#0A0A0F" stroke-width="2.4"/><rect x="137" y="136" width="40" height="13" rx="2" fill="#F2EAD6"/><rect x="137" y="136" width="40" height="4" fill="#C1121B"/><circle cx="146" cy="158" r="4" fill="#F2EAD6"/><circle cx="168" cy="158" r="4" fill="#F2EAD6"/></g>
+<ellipse cx="66" cy="116" rx="9" ry="5.5" fill="#FF9DB5" opacity=".7"/><ellipse cx="134" cy="116" rx="9" ry="5.5" fill="#FF9DB5" opacity=".7"/>
+<g class="g judging"><path d="M72 98 H92 A10 10 0 0 1 72 98Z" fill="#0A0A0F"/><path d="M112 98 H132 A10 10 0 0 1 112 98Z" fill="#0A0A0F"/><path d="M70 98 H94 M110 98 H134" stroke="#0A0A0F" stroke-width="3.4" stroke-linecap="round"/><path d="M70 86 H94" stroke="#0A0A0F" stroke-width="3.4" stroke-linecap="round"/><path d="M110 84 Q122 74 136 82" fill="none" stroke="#0A0A0F" stroke-width="3.4" stroke-linecap="round"/><path d="M90 124 Q102 128 116 120" fill="none" stroke="#0A0A0F" stroke-width="3.6" stroke-linecap="round"/></g>
+<g class="g intrigued"><circle cx="82" cy="96" r="11" fill="#fff" stroke="#0A0A0F" stroke-width="3.2"/><circle cx="122" cy="96" r="11" fill="#fff" stroke="#0A0A0F" stroke-width="3.2"/><circle cx="85" cy="97" r="4.4" fill="#0A0A0F"/><circle cx="125" cy="97" r="4.4" fill="#0A0A0F"/><path d="M68 78 Q82 68 96 76 M108 76 Q122 68 136 78" fill="none" stroke="#0A0A0F" stroke-width="3.4" stroke-linecap="round"/><ellipse cx="102" cy="124" rx="5.5" ry="7" fill="#0A0A0F"/></g>
+<g class="g delighted"><path d="M70 100 Q82 86 94 100 M110 100 Q122 86 134 100" fill="none" stroke="#0A0A0F" stroke-width="4.2" stroke-linecap="round"/><path d="M84 116 Q102 142 120 116Z" fill="#3a0d12" stroke="#0A0A0F" stroke-width="3" stroke-linejoin="round"/><path d="M90 117 l4 8 l4 -8 M106 117 l4 8 l4 -8" fill="#fff" stroke="none"/></g>
+<g class="g gentle"><circle cx="82" cy="98" r="6.5" fill="#0A0A0F"/><circle cx="122" cy="98" r="6.5" fill="#0A0A0F"/><circle cx="84" cy="95.5" r="2" fill="#fff"/><circle cx="124" cy="95.5" r="2" fill="#fff"/><path d="M70 86 Q80 80 94 86 M110 86 Q124 80 134 86" fill="none" stroke="#0A0A0F" stroke-width="3.2" stroke-linecap="round"/><path d="M92 122 Q102 130 112 122" fill="none" stroke="#0A0A0F" stroke-width="3.6" stroke-linecap="round"/></g>
+</svg>`;
+function mountGhost(el){el.innerHTML=GHOST;const s=el.querySelector('svg');s.querySelectorAll('.g').forEach(g=>g.style.display='none');setGhost(s,'judging');return s}
+function setGhost(svg,mood){svg.dataset.mood=mood;svg.querySelectorAll('.g').forEach(g=>g.style.display=g.classList.contains(mood)?'':'none')}
+const clerkSvg=mountGhost($('clerk'));
+let sayLast='';
+function say(t){if(t===sayLast)return;sayLast=t;const b=$('say');b.textContent=t;b.classList.remove('bump');void b.offsetWidth;b.classList.add('bump')}
+
+/* ---------- mood reading (shared by the live reactions and the built-in clerk) ---------- */
+const MOODS={
+ grief:{re:new RegExp(MOOD_PATTERNS.grief,'i'),live:"Oof. Okay. I have tapes for that.",notes:[
+  (q,t,b)=>`You said "${q}". I won't joke about that part. I will hand you ${t}: ${b} It's a safe place to be sad at exactly the volume you choose.`,
+  (q,t,b)=>`"${q}", noted. ${t} won't fix it, but it will make your sadness feel professionally supervised.`,
+  (q,t,b)=>`Heavy week ("${q}"). ${t}: ${b} Cry at the correct moment, not three scenes early.`]},
+ breakup:{re:new RegExp(MOOD_PATTERNS.breakup,'i'),live:"Ghosted? Rude. Ghosting is MY department.",notes:[
+  (q,t,b)=>`"${q}"? Rude. Ghosting is MY department. Take ${t}: ${b} Think of it as closure with better production values.`,
+  (q,t,b)=>`You mentioned "${q}". ${t}: ${b} Not advice. Just a reminder that your situation could involve more fog.`,
+  (q,t,b)=>`"${q}" is a lot. ${t} will make your ex look like a minor inconvenience by comparison.`]},
+ burnout:{re:new RegExp(MOOD_PATTERNS.burnout,'i'),live:"Tired AND stressed. Classic. Sit.",notes:[
+  (q,t,b)=>`You said "${q}", so naturally you want to watch somebody else's week go worse. ${t}: ${b} Therapeutic, in a way.`,
+  (q,t,b)=>`"${q}". Same. Take ${t}, and for ninety minutes be exhausted somewhere more interesting.`,
+  (q,t,b)=>`Tired AND stressed ("${q}")? Classic. ${t}: ${b} Cheaper than a holiday, scarier than your inbox.`]},
+ pressure:{re:new RegExp(MOOD_PATTERNS.pressure,'i'),live:"Placement season? Say less. Sit.",notes:[
+  (q,t,b)=>`"${q}"? Placement-season energy. ${t}: ${b} At least the monster here has a clear deadline.`,
+  (q,t,b)=>`You said "${q}". I respect the ambition. ${t} will remind you there are worse things than a rejection email.`,
+  (q,t,b)=>`"${q}" is a whole personality this month. ${t}: ${b} Take the night off. The CGPA will survive.`]},
+ anxiety:{re:new RegExp(MOOD_PATTERNS.anxiety,'i'),live:"Overthinking? Perfect. We have a section.",notes:[
+  (q,t,b)=>`"${q}": brave of you to rent a horror tape. ${t}: ${b} Your brain will finally have something new to spiral about.`,
+  (q,t,b)=>`You said "${q}". Perfect, we have a section for that. ${t}: ${b}`,
+  (q,t,b)=>`"${q}" sounds exhausting. ${t} at least gives the dread a proper plot.`]},
+ loneliness:{re:new RegExp(MOOD_PATTERNS.loneliness,'i'),live:"Alone? Hi. The ghost is here.",notes:[
+  (q,t,b)=>`"${q}"? The ghost behind this counter is thrilled to meet you. ${t}: ${b} Company, of a sort.`,
+  (q,t,b)=>`You said "${q}". ${t} won't fix it, but it is a very atmospheric way to be alone.`,
+  (q,t,b)=>`"${q}". Noted. ${t}: ${b} It understands you, which is more than most apps do.`]},
+ rage:{re:new RegExp(MOOD_PATTERNS.rage,'i'),live:"Angry. Good. Valid. Sit.",notes:[
+  (q,t,b)=>`"${q}": valid. Sit. ${t}: ${b} Someone else gets to scream so you don't have to.`,
+  (q,t,b)=>`You said "${q}", so here's ${t}. Violence, but make it cinematic.`,
+  (q,t,b)=>`"${q}"? Good. Rent that anger a tape. ${t}: ${b}`]},
+ boredom:{re:new RegExp(MOOD_PATTERNS.boredom,'i'),live:"Bored. Worst reason to rent. Best reason too.",notes:[
+  (q,t,b)=>`"${q}" is the worst reason to rent a horror tape and honestly the best one. ${t}: ${b}`,
+  (q,t,b)=>`You said "${q}". ${t} fixes that, or at least replaces it with fear, which is more interesting.`,
+  (q,t,b)=>`"${q}"? Say no more. ${t}: ${b} Your evening just got a plot.`]},
+ fun:{re:new RegExp(MOOD_PATTERNS.fun,'i'),live:"Happy?! Suspicious. Go on.",notes:[
+  (q,t,b)=>`"${q}"?! Suspicious. Fine. ${t}: ${b} Bring friends and ruin the mood together.`,
+  (q,t,b)=>`You said "${q}". Great, let's fix that. ${t}: ${b}`,
+  (q,t,b)=>`"${q}" is a lovely energy to waste on something terrifying. ${t}: ${b}`]},
+ nostalgia:{re:new RegExp(MOOD_PATTERNS.nostalgia,'i'),live:"Nostalgia? I have fuzzy old tapes.",notes:[
+  (q,t,b)=>`"${q}": I have the perfect old, fuzzy tape. ${t}: ${b} Rewind not included. Be kind anyway.`,
+  (q,t,b)=>`You said "${q}". ${t} feels like a throwback, if your childhood had better lighting and worse choices.`,
+  (q,t,b)=>`"${q}"? ${t}: ${b} Dust it off and press play.`]} ,
+ adrenaline:{re:new RegExp(MOOD_PATTERNS.adrenaline,'i'),live:"Adrenaline junkie. Sit.",notes:[
+  (q,t,b)=>`"${q}"? Your pulse called ahead. ${t}: ${b} Seatbelt not included.`,
+  (q,t,b)=>`You said "${q}", so here's ${t}. ${b} Hold on to something.`]},
+ curious:{re:new RegExp(MOOD_PATTERNS.curious,'i'),live:"A puzzle person. I have those.",notes:[
+  (q,t,b)=>`"${q}": a curious mind. ${t}: ${b} Pay attention, there will be questions.`,
+  (q,t,b)=>`You said "${q}". ${t} will make you pause and rewind, which is the best kind of tape.`]},
+ family:{re:new RegExp(MOOD_PATTERNS.family,'i'),live:"Family, huh. We have a section.",notes:[
+  (q,t,b)=>`"${q}": ah, family. ${t}: ${b} At least your relatives are not THIS dramatic.`,
+  (q,t,b)=>`You mentioned "${q}". ${t} will make your next family dinner look peaceful.`]},
+ cozy:{re:new RegExp(MOOD_PATTERNS.cozy,'i'),live:"Cosy? I'll find you something soft-ish.",notes:[
+  (q,t,b)=>`"${q}": cosy mood noted. ${t}: ${b} Blanket on, lights low.`,
+  (q,t,b)=>`You said "${q}". ${t} is spooky, but it tucks you in afterwards.`]},
+ guilt:{re:new RegExp(MOOD_PATTERNS.guilt,'i'),live:"Guilty conscience? Perfect.",notes:[
+  (q,t,b)=>`"${q}": ooh, guilt. ${t}: ${b} It never ends well for the guilty, but it is a great watch.`,
+  (q,t,b)=>`You said "${q}". ${t} will make your mistakes feel small.`]},
+ paranoia:{re:new RegExp(MOOD_PATTERNS.paranoia,'i'),live:"Being watched? Same, honestly.",notes:[
+  (q,t,b)=>`"${q}": paranoia, lovely. ${t}: ${b} Check the closet. Then don't.`,
+  (q,t,b)=>`You said "${q}", so naturally ${t} is next. ${b}`]}
+};
+const FRIENDS_RE=new RegExp(MOOD_FRIENDS,'i');
+const EMPTY_NOTES=[(t,b)=>`You didn't give me much, so I went with instinct. ${t}: ${b} The clerk is rarely wrong, only occasionally dramatic.`,(t,b)=>`Mysterious. I like it. ${t}: ${b} Trust the tape.`];
+// the customer DID say something, but it is not a mood the built-in clerk knows: say so honestly instead of pretending the slip was empty
+const UNCLEAR_NOTES=[(t,b)=>`I couldn't tell which mood that was, so I went with instinct. ${t}: ${b} The clerk is rarely wrong, only occasionally dramatic.`,(t,b)=>`That one stumped me, so I trusted my gut. ${t}: ${b} Trust the tape.`];
+const SCARE_NOTES=[(t,b,d)=>`You asked to be terrified, so no cosy nonsense. ${t}: ${b} Dread ${d} out of 5. Lights ON is a suggestion, not a rule.`,(t,b,d)=>`Bold of you to ask for fear. ${t}: ${b} Dread ${d}/5. Bring a change of pants.`,(t,b,d)=>`Noted: you want to suffer. ${t}: ${b} Dread ${d}/5. No refunds on nightmares.`];
+const GENTLE_NOTES=[(t,b,d)=>`Gentle it is. ${t}: ${b} Dread ${d} out of 5. Nobody gets hurt (much).`,(t,b,d)=>`Easy does it. ${t}: ${b} Dread ${d}/5. Snacks recommended.`,(t,b,d)=>`Soft landing for you. ${t}: ${b} Dread ${d}/5, so you can keep the lights low.`];
+const INTENT_LABEL={scare:'wants to be terrified',gentle:'wants it gentle'};
+const INTENT_LIVE={scare:"Oh, you WANT to suffer. Sit.",gentle:"Easy. I'll find you something soft."};
+function lc(s){return s.charAt(0).toLowerCase()+s.slice(1)}
+function hash(s){let h=5381;for(let i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i))>>>0;return h}
+function detect(text){
+  const out=[];
+  for(const k of Object.keys(MOODS)){const m=text.match(MOODS[k].re);if(m){const n=(text.match(new RegExp(MOODS[k].re.source,'gi'))||[]).length;out.push({k,q:m[0],n})}}
+  if(FRIENDS_RE.test(text))out.push({k:'friends',q:(text.match(FRIENDS_RE)||[''])[0],n:1,silent:true});
+  out.sort((a,b)=>b.n-a.n);
+  return out;
+}
+const PAIRS={low:['chai and biscuits','a blanket and your good lamp','something warm. You earned it'],mid:['popcorn you will forget to eat','maggi at 1 a.m.','cold coffee and denial'],high:['every light in the house, ON','a friend on standby (a video call counts)','cold water and a firm grip on reality']};
+const SKIPS={low:'Skip it if you were hoping to be scared. This one mostly hugs.',mid:'Skip it if you live alone and your hallway is long.',high:'Skip it if you plan to sleep tonight. Or tomorrow.'};
+const band=d=>d<=2?'low':d<=3?'mid':'high';
+const CRISIS=/\b(suicid\w*|kill (?:myself|me)|end it all|want to die|self[- ]?harm|hurt myself|cut myself|don'?t want to (?:live|be here|exist)|better off (?:dead|without me))\b/i;
+
+function pickLocal(text,fmt,tol,avoid=[],force=null,o={}){
+  const types=Array.isArray(fmt)?fmt:(fmt==='any'||!fmt?ALL_TYPES:[fmt]);
+  let pool=CATALOG.filter(c=>types.includes(c.type)&&!avoid.includes(c.id));
+  if(!pool.length)pool=CATALOG.filter(c=>types.includes(c.type));                // "another tape" ran out of unseen titles: allow repeats
+  let win=scareWindow(pool,tol);if(!win.length)win=pool;                       // the scare level is a target: this level and the one below
+  let det=force?[{k:force,q:'',n:2}]:detect(text);
+  const wanted=det.length?det:[{k:'boredom',q:'',n:1},{k:'curious',q:'',n:1}];
+  const intent=force?null:detectIntent(text);
+  if(intent==='scare'){const topOnly=win.filter(c=>c.dread>=tol);if(topOnly.length>=8)win=topOnly}   // they asked to be scared: pick from the top of the window, not just near it
+  const scored=win.map(c=>{let s=0;wanted.forEach((w,i)=>{if(c.tags.includes(w.k))s+=(i===0?3:1.5)*Math.min(2,w.n)});
+    if(c.dread<=tol)s+=1;else s-=(c.dread-tol)*2.5;
+    s+=c.dread>=tol?0.8:c.dread===tol-1?0.6:0;                                       // a light tiebreaker for the level itself (kept small so picks stay varied)
+    if(intent==='scare'&&c.dread>=tol)s+=2;                                          // they asked to be scared: favour the top of the window
+    if(intent==='gentle'&&c.tags.includes('cozy'))s+=1.5;
+    s+=(hash(c.id+text)%100)/1000;return{c,s}}).sort((a,b)=>b.s-a.s);
+  const top=scored[0].c;
+  const bk=scored.find(x=>x.c.id!==top.id&&(x.c.type!==top.type||x.c.pace!==top.pace))||scored[1]||null;
+  const lead=det.find(d=>!d.silent&&MOODS[d.k]);
+  let note;
+  const hasText=o.hasText!==undefined?o.hasText:String(text).trim().length>=3;
+  if(intent==='scare'){const f=SCARE_NOTES[hash(text+top.id)%SCARE_NOTES.length];note=f(top.title,top.blurb,top.dread)}
+  else if(intent==='gentle'){const f=GENTLE_NOTES[hash(text+top.id)%GENTLE_NOTES.length];note=f(top.title,top.blurb,top.dread)}
+  else if(lead){const fns=MOODS[lead.k].notes;note=fns[hash(text+top.id)%fns.length](lead.q,top.title,top.blurb)}
+  else{const arr=hasText?UNCLEAR_NOTES:EMPTY_NOTES;const f=arr[hash(text+top.id)%arr.length];note=f(top.title,top.blurb)}
+  const bnd=band(top.dread),pr=PAIRS[bnd];
+  return{engine:'local',id:top.id,backup_id:bk?bk.c.id:null,note,pairs:pr[hash(top.id)%pr.length],skip:SKIPS[bnd]};
+}
+
+/* ---------- AI pick (Vercel function) with graceful fallback ---------- */
+async function aiPick(payload){
+  const ctl=new AbortController();const to=setTimeout(()=>ctl.abort(),12000);
+  try{
+    const r=await fetch('/api/pick',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload),signal:ctl.signal});
+    if(!r.ok)throw new Error('http '+r.status);
+    const j=await r.json();
+    if(j.care)return j;
+    if(j.engine!=='llm'||!byId[j.id]||typeof j.note!=='string')throw new Error('bad shape');
+    if(j.backup_id&&!byId[j.backup_id])j.backup_id=null;
+    return j;
+  }finally{clearTimeout(to)}
+}
+
+/* ---------- UI state ---------- */
+const chipsData=['exam week, zero sleep','got ghosted, totally fine','boss said "let\'s circle back"','it\'s Monday','placement season is eating me','everything is great (it is not)'];
+$('chips').innerHTML=chipsData.map(c=>`<button class="chip" type="button">${esc(c)}</button>`).join('');
+$('chips').addEventListener('click',e=>{const b=e.target.closest('.chip');if(!b)return;const m=$('mood');m.value=(m.value?m.value.replace(/\s+$/,'')+'. ':'')+b.textContent;m.focus();liveSoon()});
+$('slipno').textContent=String(Math.floor(Math.random()*9000)+1000);
+const ALL_TYPES=['film','game','series'];
+const FMT_WORD={film:'movies',series:'series',game:'games'};
+const fmtSel=()=>{const v=[...document.querySelectorAll('input[name=fmt]:checked')].map(i=>i.value);return v.length?v:ALL_TYPES.slice()};
+function updFmt(){const v=fmtSel();$('fmtNote').textContent=v.length===3?'Anything on the shelves.':'Just '+['film','series','game'].filter(t=>v.includes(t)).map(t=>FMT_WORD[t]).join(' + ')+'.'}
+document.querySelectorAll('input[name=fmt]').forEach(i=>i.addEventListener('change',e=>{if(!document.querySelector('input[name=fmt]:checked')){e.target.checked=true;$('fmtNote').textContent='Pick at least one. The shelves cannot be empty, babe.';return}updFmt()}));
+function updTol(){const v=+$('tol').value;$('tolLabel').textContent=TOL_LABEL[v];$('tolSkulls').innerHTML=skulls(v)}
+let tolTouched=false;                                   // once the customer moves the slider themselves, it is theirs: words never override it
+$('tol').addEventListener('input',()=>{tolTouched=true;updTol()});updTol();
+// "scare me" / "nothing too scary" in the text nudge the level, but only if the slider is still untouched
+function effectiveLevel(text,tol){
+  const it=detectIntent(text);
+  if(tolTouched||!it)return{tol,nudge:null,intent:it};
+  if(it==='scare'){const want=/\b(pants|terrif\w*|traumati[sz]\w*|nightmare\w*|petrif\w*|horrif\w*|nothing\s+(?:ever\s+)?scares|bring\s+it\s+on|shit|crap|piss|pee|wet)\b/i.test(text)?5:4;   // strong wording: all the way up
+    if(tol<want)return{tol:want,nudge:'up',intent:it}}
+  if(it==='gentle'&&tol>2)return{tol:2,nudge:'down',intent:it};
+  return{tol,nudge:null,intent:it};
+}
+
+let liveT=0;
+function liveSoon(){clearTimeout(liveT);liveT=setTimeout(live,260)}
+function live(){
+  if(busy)return;
+  const t=$('mood').value.trim();
+  if(!t){setGhost(clerkSvg,'judging');say("Well? I don't have all night. Actually, I do.");return}
+  if(CRISIS.test(t)){setGhost(clerkSvg,'gentle');say("Hey. I'm listening. Take your time.");return}
+  setGhost(clerkSvg,'intrigued');
+  const it=detectIntent(t);
+  if(it){say(INTENT_LIVE[it]);return}
+  const d=detect(t).find(x=>!x.silent);
+  say(d?MOODS[d.k].live:'Mm-hm. Go on.');
+}
+$('mood').addEventListener('input',liveSoon);
+
+/* OSD */
+const t0=Date.now();
+function osdTick(){const s=Math.floor((Date.now()-t0)/1000);$('osdTime').textContent=Math.floor(s/3600)+':'+String(Math.floor(s/60)%60).padStart(2,'0')+':'+String(s%60).padStart(2,'0')}
+if(!reduced())setInterval(osdTick,1000);
+function osd(m){$('osdMode').textContent=m}
+
+/* ---------- finding a tape ---------- */
+let busy=false,last=null,typer=null,seen=[];
+function fitTitle(t){const n=t.length;return n>28?'1.45rem':n>20?'1.8rem':n>13?'2.2rem':'2.7rem'}
+function tapeHTML(c,loading){return `<article class="tape${loading?' loading':''}" aria-label="${esc(c?c.title:'tape')}"><div class="tlabel"><div class="stripe"></div><div class="ttitle" style="--fs:${c?fitTitle(c.title):'2.2rem'}">${c?esc(c.title):'&nbsp;'}</div><div class="tmeta"><span>${c?TYPE_LABEL[c.type]+' · '+c.year:'-- · ----'}</span><span class="skulls">${c?skulls(c.dread):''}</span></div></div><div class="twin"><i class="reel"></i><i class="reel"></i></div></article>`}
+
+async function find(opts={}){
+  if(busy)return;
+  const text=$('mood').value.trim();
+  if(text.length<3&&!opts.surprise&&!opts.force){$('out').innerHTML='<section class="care" style="border-left-color:var(--red)"><p style="margin:0"><b>The slip is empty.</b> Tell the clerk something, anything. Even "meh" counts.</p></section>';setGhost(clerkSvg,'judging');say('Blank slip. Bold.');return}
+  const eff=effectiveLevel(text,+$('tol').value);
+  const fmt=fmtSel(),tol=opts.force==='cozy'?1:eff.tol;   // the gentle-instead button always means gentle, whatever the slider says
+  if(!opts.force&&CRISIS.test(text)){renderCare('');return}
+  busy=true;$('go').disabled=true;osd('◀◀ REWIND');setGhost(clerkSvg,'intrigued');say('Hold on. Rewinding...');
+  $('out').innerHTML=`<div class="res"><div>${tapeHTML(null,true)}</div><div class="stack"><div class="loadmsg">◀◀ REWINDING...</div></div></div>`;
+  $('out').scrollIntoView({behavior:reduced()?'auto':'smooth',block:'start'});
+  const t1=performance.now();
+  let res=null,fromAI=false;
+  const avoid=opts.again?seen.slice(-6):[];
+  try{
+    if(opts.surprise||opts.force)throw new Error('local only');
+    const a=await aiPick({mood:text,formats:fmt,tolerance:tol,avoid});   // tol already includes any nudge from the customer's own words
+    if(a.care){await settle(t1);busy=false;$('go').disabled=false;renderCare(a.note||'');return}
+    res=a;fromAI=true;
+  }catch(e){res=pickLocal(opts.surprise?String(Math.random()):text,fmt,tol,avoid,opts.force||null,{hasText:!opts.surprise&&text.length>=3})}
+  await settle(t1);
+  seen.push(res.id);last={res,text:opts.surprise?'':text,fromAI,fmt,tol,nudge:opts.force==='cozy'?null:eff.nudge,intent:eff.intent};
+  render();busy=false;$('go').disabled=false;
+}
+function settle(t1){return new Promise(r=>setTimeout(r,Math.max(0,1300-(performance.now()-t1))))}
+
+function render(){
+  const {res,fromAI}=last,c=byId[res.id],bk=res.backup_id?byId[res.backup_id]:null;
+  const heard=detect(last.text||'').filter(d=>!d.silent).map(d=>d.k);
+  if(last.intent)heard.unshift(INTENT_LABEL[last.intent]);
+  osd('▶ PLAY');setGhost(clerkSvg,'delighted');say(['Told you. Perfect fit.','Oh, you will suffer. Beautifully.','That one. Trust me.'][hash(res.id)%3]);
+  $('out').innerHTML=`<div class="res">
+    <div>${tapeHTML(c,false)}<p class="hint" style="text-align:center;margin:18px 0 0">${fromAI?'picked by the AI clerk (Claude)':'picked by the built-in clerk: rule-based, no AI'}</p>
+      ${last.nudge?`<p class="hint nudge" style="text-align:center;margin:8px 0 0">scare level nudged ${last.nudge} to ${TOL_LABEL[last.tol]} because ${last.intent==='scare'?'you asked to be scared':'you asked for something gentle'}. Move the slider to override.</p>`:''}
+      <div class="read"><span class="chip2">YOU SOUNDED</span>${heard.length?heard.map(k=>`<span class="tag">${esc(k)}</span>`).join(''):'<span class="tag">'+((last.text||'').trim().length>=3?'hard to read':'mysterious')+'</span>'}</div>
+      <div class="read"><span class="chip2">THIS TAPE IS</span>${c.tags.slice(0,4).map(k=>`<span class="tag">${esc(k)}</span>`).join('')}<span class="tag">${c.pace} burn</span></div></div>
+    <div class="stack">
+      <div class="note-card"><h3>CLERK'S NOTE</h3><p id="noteP" class="cursor"></p></div>
+      <dl class="meta">
+        <div><dt>PAIRS WITH</dt><dd>${esc(res.pairs||'whatever you were going to snack on anyway')}</dd></div>
+        <div><dt>SKIP IT IF</dt><dd>${esc(res.skip||'you wanted something cheerful.')}</dd></div>
+        <div><dt>THE PREMISE</dt><dd>${esc(c.blurb)}</dd></div>
+        ${whereRow(c)}
+      </dl>
+      ${bk?`<div class="backup"><div class="sp" style="--c:${TYPE_COLOR[bk.type]}">${esc(bk.title)}</div><div><span class="chip2">BACKUP TAPE</span><br><b>${esc(bk.title)}</b> <span class="hint">(${bk.year}, ${bk.type})</span><br><span style="color:var(--muted);font-size:.9rem">${esc(bk.blurb)}</span></div></div>`:''}
+      <div class="row"><button class="btn" id="again" type="button">ANOTHER TAPE ▶</button><button class="btn2" id="poster" type="button">MAKE A POSTER</button><button class="btn2" id="copy" type="button">COPY</button><span id="copied" class="hint" style="font-size:.9rem"></span></div>
+    </div></div>`;
+  hydrateWhere($('out'));
+  typeNote($('noteP'),res.note);
+  $('again').onclick=()=>find({again:true,surprise:last&&last.surprise});
+  $('poster').onclick=makePoster;
+  const sum=`Mood → Horror Pick: ${c.title} (${c.year}, ${c.type}). ${res.note}`+(res.pairs?` Pairs with: ${res.pairs}.`:'')+(c.where?` ${c.type==='game'?'Play on':'Watch on'}: ${c.where}.`:'');
+  $('copy').onclick=async()=>{try{await navigator.clipboard.writeText(sum);$('copied').textContent='copied.'}catch(e){$('copied').textContent='copy blocked here.'}};
+}
+function typeNote(el,text){
+  clearInterval(typer);
+  if(reduced()){el.textContent=text;el.classList.remove('cursor');return}
+  let i=0;el.textContent='';
+  typer=setInterval(()=>{i+=2;el.textContent=text.slice(0,i);if(i>=text.length){clearInterval(typer);el.textContent=text;el.classList.remove('cursor')}},18);
+  el.addEventListener('click',()=>{clearInterval(typer);el.textContent=text;el.classList.remove('cursor')},{once:true});
+}
+
+function renderCare(note){
+  osd('■ PAUSE');setGhost(clerkSvg,'gentle');say('Hey. Pause the tapes.');
+  const msg=note||"That sounds really heavy, and I'm not going to joke about it. A horror pick isn't what you need right now.";
+  $('out').innerHTML=`<section class="care"><h3>Hey. Pause the tapes.</h3><p>${esc(msg)}</p><p>If you're in India, <b>Tele-MANAS</b> is free and open 24x7 on <b>14416</b>. Elsewhere, please reach out to a local helpline or someone you trust. If you might act on these thoughts right now, call your local emergency number.</p><div class="row" style="margin-top:14px"><button class="btn2" id="gentle" type="button">SHOW ME SOMETHING GENTLE INSTEAD</button></div></section>`;
+  $('out').scrollIntoView({behavior:reduced()?'auto':'smooth',block:'start'});
+  $('gentle').onclick=()=>find({force:'cozy',surprise:false});
+}
+
+$('form').addEventListener('submit',e=>{e.preventDefault();find()});
+$('surprise').onclick=()=>{$('rent').scrollIntoView({behavior:reduced()?'auto':'smooth'});find({surprise:true})};
+$('cta').addEventListener('click',e=>{e.preventDefault();$('rent').scrollIntoView({behavior:reduced()?'auto':'smooth',block:'start'});setTimeout(()=>$('mood').focus({preventScroll:true}),400)});
+
+/* ---------- shelves ---------- */
+const spineH=c=>120+((hash(c.id)%7)*9);
+let shelfFilter='all',shelfQ='';
+$('shelf').innerHTML=CATALOG.map(c=>`<button class="spine" type="button" data-id="${c.id}" data-type="${c.type}" data-s="${esc((c.title+' '+c.year).toLowerCase())}" style="--c:${TYPE_COLOR[c.type]};--h:${spineH(c)}px" aria-label="${esc(c.title)} (${c.year}, ${c.type})" title="${esc(c.title)} (${c.year})">${esc(c.title)}</button>`).join('');
+function applyShelf(){
+  let n=0;
+  $('shelf').querySelectorAll('.spine').forEach(b=>{const show=(shelfFilter==='all'||b.dataset.type===shelfFilter)&&(!shelfQ||b.dataset.s.includes(shelfQ));b.hidden=!show;if(show)n++});
+  $('shelfCount').textContent=n===0?'Nothing on the shelves matches. The clerk shrugs.':(n===CATALOG.length?CATALOG.length+' tapes on the shelves. Tap one to peek at it.':n+' of '+CATALOG.length+' tapes shown.');
+}
+$('filters').innerHTML=[['all','ALL'],['film','FILMS'],['game','GAMES'],['series','SERIES']].map((f,i)=>`<button type="button" data-f="${f[0]}" aria-pressed="${i===0}">${f[1]}</button>`).join('');
+$('filters').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;$('filters').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b));shelfFilter=b.dataset.f;applyShelf()});
+$('shelfSearch').addEventListener('input',e=>{shelfQ=e.target.value.trim().toLowerCase();applyShelf()});
+applyShelf();
+$('shelf').addEventListener('click',e=>{const b=e.target.closest('.spine');if(!b)return;const c=byId[b.dataset.id];
+  $('dbody').innerHTML=`<span class="chip2">${TYPE_LABEL[c.type]} · ${c.year}</span><h3 style="margin-top:8px">${esc(c.title)}</h3><div class="skulls" style="margin:8px 0">${skulls(c.dread)}</div><p>${esc(c.blurb)}</p><p style="color:#5a554b;font-size:.9rem">Pace: ${c.pace}. Good for: ${c.tags.map(esc).join(', ')}.</p><dl class="meta">${whereRow(c)}</dl>`;
+  hydrateWhere($('dbody'));
+  $('dmodal').hidden=false;$('closeD').focus()});
+$('closeD').onclick=()=>{$('dmodal').hidden=true};
+$('dmodal').addEventListener('click',e=>{if(e.target===$('dmodal'))$('dmodal').hidden=true});
+
+/* ---------- poster (share card) ---------- */
+let lastBlob=null;
+function wrapLines(x,text,maxW){const words=text.split(' ');const lines=[];let line='';for(const w of words){const test=line?line+' '+w:w;if(x.measureText(test).width>maxW&&line){lines.push(line);line=w}else line=test}if(line)lines.push(line);return lines}
+function drawSkull(x,cx,cy,s,on){x.save();x.translate(cx,cy);x.scale(s/24,s/24);x.translate(-12,-12);const p=new Path2D('M12 2.5c4.7 0 7.5 3 7.5 7 0 2.4-1 3.9-2.5 4.9V18a1.5 1.5 0 0 1-1.5 1.5h-7A1.5 1.5 0 0 1 7 18v-3.6C5.5 13.4 4.5 11.9 4.5 9.5c0-4 2.8-7 7.5-7z');x.lineWidth=1.6;x.lineJoin='round';x.fillStyle=on?'#F2EAD6':'rgba(255,255,255,0)';x.strokeStyle=on?'#0A0A0F':'#6c6a76';x.fill(p);x.stroke(p);x.fillStyle=on?'#0A0A0F':'#6c6a76';x.beginPath();x.arc(9,10.5,1.9,0,7);x.fill();x.beginPath();x.arc(15,10.5,1.9,0,7);x.fill();x.restore()}
+async function makePoster(){
+  if(!last)return;
+  const c=byId[last.res.id],res=last.res;
+  try{await Promise.all([document.fonts.load('120px Anton'),document.fonts.load('40px "Special Elite"'),document.fonts.load('40px VT323')])}catch(e){}
+  const W=1080,H=1350,cv=document.createElement('canvas');cv.width=W;cv.height=H;const x=cv.getContext('2d');
+  const ANTON='Anton,Impact,"Arial Narrow",sans-serif',TYPE='"Special Elite","Courier New",monospace',VT='VT323,"Courier New",monospace';
+  x.fillStyle='#08080c';x.fillRect(0,0,W,H);
+  let g=x.createRadialGradient(W/2,H*.38,60,W/2,H*.38,H*.8);g.addColorStop(0,'rgba(255,42,51,.22)');g.addColorStop(1,'rgba(0,0,0,0)');x.fillStyle=g;x.fillRect(0,0,W,H);
+  let seed=hash(c.id);const rnd=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296};
+  x.fillStyle='rgba(255,255,255,.06)';for(let i=0;i<2600;i++){x.fillRect(rnd()*W,rnd()*H,1.4,1.4)}
+  x.fillStyle='rgba(0,0,0,.28)';for(let yy=0;yy<H;yy+=4){x.fillRect(0,yy,W,1.5)}
+  x.textBaseline='alphabetic';x.textAlign='left';
+  x.fillStyle='#7CFF6B';x.font='54px '+VT;x.fillText('PLAY ▶',60,92);x.textAlign='right';x.fillText('SP  0:13:37',W-60,92);x.textAlign='left';
+  const fitSize=(txt,fam,size,maxW)=>{let sz=size;x.font=sz+'px '+fam;while(x.measureText(txt).width>maxW&&sz>18){sz-=2;x.font=sz+'px '+fam}return sz};
+  x.fillStyle='#C1121B';x.fillRect(60,130,W-120,58);x.fillStyle='#fff';
+  const bt='NEW ARRIVAL  ·  STAFF PICK  ·  NO REFUNDS ON NIGHTMARES';const bsz=fitSize(bt,VT,46,W-120-40);x.font=bsz+'px '+VT;x.fillText(bt,80,159+bsz*.3);
+  // title with chromatic glitch
+  const title=c.title.toUpperCase();let fs=210;x.font=fs+'px '+ANTON;
+  let lines=wrapLines(x,title,W-160);while((lines.length>3||lines.some(l=>x.measureText(l).width>W-160))&&fs>70){fs-=8;x.font=fs+'px '+ANTON;lines=wrapLines(x,title,W-160)}
+  let y=300+fs*.82;const lh=fs*.98;
+  lines.forEach((l,i)=>{const yy=y+i*lh;x.fillStyle='#ff2a33';x.fillText(l,60-7,yy);x.fillStyle='#19e3ff';x.fillText(l,60+7,yy);x.fillStyle='#fff';x.fillText(l,60,yy)});
+  y=y+(lines.length-1)*lh+96;
+  const st=TYPE_LABEL[c.type]+'  ·  '+c.year+'  ·  '+c.pace.toUpperCase()+' BURN';
+  x.fillStyle='#EDEAE2';x.font=fitSize(st,VT,64,W-120)+'px '+VT;x.fillText(st,60,y);
+  for(let i=0;i<5;i++)drawSkull(x,86+i*58,y+58,44,i<c.dread);
+  x.fillStyle='#9A97A6';x.font='44px '+VT;x.fillText('DREAD '+c.dread+'/5',360,y+72);
+  // clerk's note label
+  const noteTop=y+130;x.font='34px '+TYPE;const nl=wrapLines(x,res.note,W-220);const nh=Math.min(nl.length,7)*46+96;
+  x.fillStyle='#000';x.fillRect(66,noteTop+8,W-120,nh);x.fillStyle='#F2EAD6';x.fillRect(60,noteTop,W-120,nh);
+  x.fillStyle='#C1121B';x.fillRect(60,noteTop,W-120,12);
+  x.fillStyle='#9c0f17';x.font='40px '+VT;x.fillText("CLERK'S NOTE",90,noteTop+58);
+  x.fillStyle='#0A0A0F';x.font='33px '+TYPE;nl.slice(0,7).forEach((l,i)=>x.fillText(i===6&&nl.length>7?l.replace(/\s*\S*$/,'')+'...':l,90,noteTop+104+i*46));
+  x.textAlign='center';x.fillStyle='#EDEAE2';x.font='62px '+ANTON;x.fillText('MOOD → HORROR PICK',W/2,H-86);
+  x.fillStyle='#7CFF6B';x.font='46px '+VT;x.fillText('BE KIND, REWIND.',W/2,H-38);
+  $('cardImg').src=cv.toDataURL('image/png');
+  lastBlob=await new Promise(r=>cv.toBlob(r,'image/png'));
+  $('saveNote').textContent='';$('modal').hidden=false;$('saveCard').focus();
+}
+$('closeCard').onclick=()=>{$('modal').hidden=true};
+$('modal').addEventListener('click',e=>{if(e.target===$('modal'))$('modal').hidden=true});
+addEventListener('keydown',e=>{if(e.key==='Escape'){$('modal').hidden=true;$('dmodal').hidden=true}});
+$('saveCard').onclick=async()=>{
+  const note=m=>{$('saveNote').textContent=m};
+  try{
+    if(!lastBlob){note('Poster not ready. Close and try again.');return}
+    const d=(window.claude&&window.claude.use)?await window.claude.use('downloads'):null;
+    if(!d){const u=URL.createObjectURL(lastBlob),el=document.createElement('a');el.href=u;el.download='horror-pick.png';document.body.appendChild(el);el.click();el.remove();setTimeout(()=>URL.revokeObjectURL(u),2000);note('Saved. If nothing happened, long-press or right-click the image.');return}
+    await d.save({filename:'horror-pick.png',data:lastBlob});note('Saved. Send it to the group chat.');
+  }catch(e){if(e&&e.code==='declined')note('No worries. Hit SAVE IMAGE if you change your mind.');else note('Could not save here. Long-press or right-click the image instead.')}
+};
+
+/* ---------- spooky stickers in the margins: hover to spin ---------- */
+(function(){
+  const INK='#0A0A0F',O=w=>`class="ol" stroke-width="${w||3.5}" stroke-linejoin="round" stroke-linecap="round"`;
+  const ART={
+   ghost:`<path ${O()} d="M24 106 V54 C24 22 96 22 96 54 V106 q-9 11 -18 0 q-9 11 -18 0 q-9 11 -18 0 q-9 11 -18 0Z" fill="#F4F1EA"/><ellipse cx="46" cy="58" rx="4.6" ry="6.4" fill="${INK}"/><ellipse cx="74" cy="58" rx="4.6" ry="6.4" fill="${INK}"/><ellipse cx="38" cy="72" rx="6" ry="3.4" fill="#FF9DB5" opacity=".85"/><ellipse cx="82" cy="72" rx="6" ry="3.4" fill="#FF9DB5" opacity=".85"/><ellipse cx="60" cy="74" rx="4" ry="5" fill="${INK}"/>`,
+   pumpkin:`<ellipse ${O()} cx="60" cy="70" rx="46" ry="38" fill="#FF8A1F"/><path d="M60 32 Q42 70 60 108 M60 32 Q24 70 60 108 M60 32 Q78 70 60 108 M60 32 Q96 70 60 108" fill="none" stroke="#D96A0B" stroke-width="2.6" opacity=".7"/><path ${O(3)} d="M56 34 Q54 18 68 14 L70 22 Q64 24 64 34Z" fill="#3E8F3A"/><polygon ${O(2.6)} points="36,60 50,60 43,47" fill="#FFE08A"/><polygon ${O(2.6)} points="70,60 84,60 77,47" fill="#FFE08A"/><path ${O(2.6)} d="M38 82 Q60 100 82 82 L76 85 L70 79 L60 87 L50 79 L44 85Z" fill="#FFE08A"/>`,
+   skull:`<path ${O()} d="M60 12 C88 12 100 34 96 58 C95 66 90 70 84 72 V88 Q84 98 76 98 H44 Q36 98 36 88 V72 C30 70 25 66 24 58 C20 34 32 12 60 12Z" fill="#F4F1EA"/><ellipse cx="44" cy="56" rx="9.5" ry="10.5" fill="${INK}"/><ellipse cx="76" cy="56" rx="9.5" ry="10.5" fill="${INK}"/><circle cx="41" cy="52" r="2.4" fill="#fff"/><circle cx="73" cy="52" r="2.4" fill="#fff"/><path d="M60 66 L55 77 H65Z" fill="${INK}"/><path d="M48 88 V98 M56 88 V98 M64 88 V98 M72 88 V98" stroke="${INK}" stroke-width="2.6" stroke-linecap="round"/><ellipse cx="32" cy="70" rx="5" ry="3" fill="#FF9DB5" opacity=".8"/><ellipse cx="88" cy="70" rx="5" ry="3" fill="#FF9DB5" opacity=".8"/>`,
+   vhs:`<rect ${O()} x="8" y="26" width="104" height="68" rx="9" fill="#1A1A22"/><rect ${O(2.4)} x="18" y="34" width="84" height="28" rx="3" fill="#F2EAD6"/><rect x="18" y="34" width="84" height="7" fill="#C1121B"/><rect x="26" y="48" width="44" height="3.4" fill="${INK}"/><rect x="26" y="54" width="30" height="3.4" fill="${INK}"/><rect ${O(2.6)} x="32" y="68" width="56" height="18" rx="9" fill="#050507"/><circle cx="46" cy="77" r="6" fill="#F2EAD6" stroke="#000" stroke-width="2"/><circle cx="74" cy="77" r="6" fill="#F2EAD6" stroke="#000" stroke-width="2"/><circle cx="14" cy="32" r="2.4" fill="#2c2c36"/><circle cx="106" cy="32" r="2.4" fill="#2c2c36"/>`,
+   popcorn:`<circle ${O(3)} cx="36" cy="46" r="13" fill="#FFF1B8"/><circle ${O(3)} cx="54" cy="38" r="14" fill="#FFF1B8"/><circle ${O(3)} cx="74" cy="40" r="14" fill="#FFF1B8"/><circle ${O(3)} cx="90" cy="48" r="12" fill="#FFF1B8"/><circle ${O(3)} cx="62" cy="30" r="12" fill="#FFF1B8"/><path ${O()} d="M28 54 L92 54 L84 108 H36Z" fill="#F2EAD6"/><path d="M44 54 L46 108 H54 L52 54Z M68 54 L66 108 H74 L76 54Z" fill="#C1121B"/><circle cx="52" cy="84" r="3.2" fill="${INK}"/><circle cx="68" cy="84" r="3.2" fill="${INK}"/><path d="M55 93 Q60 98 65 93" fill="none" stroke="${INK}" stroke-width="2.8" stroke-linecap="round"/>`,
+   bat:`<g ${O(3.2)}><path d="M52 62 C38 40 18 44 6 54 C14 56 16 62 14 68 C22 66 26 72 28 80 C36 72 44 74 52 82Z" fill="#4B3568"/><path transform="translate(120 0) scale(-1 1)" d="M52 62 C38 40 18 44 6 54 C14 56 16 62 14 68 C22 66 26 72 28 80 C36 72 44 74 52 82Z" fill="#4B3568"/><ellipse cx="60" cy="68" rx="14" ry="18" fill="#3A2B4F"/><path d="M50 52 L47 36 L58 48Z M70 52 L73 36 L62 48Z" fill="#3A2B4F"/></g><circle cx="54" cy="62" r="3.4" fill="#fff"/><circle cx="66" cy="62" r="3.4" fill="#fff"/><circle cx="54.6" cy="62.4" r="1.6" fill="${INK}"/><circle cx="66.6" cy="62.4" r="1.6" fill="${INK}"/><path d="M56 72 L58 77 L60 72 L62 77 L64 72" fill="#fff" stroke="${INK}" stroke-width="1.2"/>`,
+   eyeball:`<circle ${O()} cx="60" cy="60" r="42" fill="#fff"/><path d="M22 56 q9 5 16 2 M26 72 q10 -3 17 4 M98 52 q-9 5 -16 2 M94 74 q-10 -3 -17 4 M60 20 q2 8 -1 14" fill="none" stroke="#E85A5A" stroke-width="2.2" stroke-linecap="round"/><circle ${O(3)} cx="60" cy="62" r="21" fill="#3FA66B"/><circle cx="60" cy="62" r="10" fill="${INK}"/><circle cx="52" cy="54" r="5.4" fill="#fff"/><circle cx="68" cy="68" r="2.4" fill="#fff"/>`,
+   candle:`<g class="flame"><path ${O(3)} d="M60 6 C72 22 74 34 60 46 C46 34 48 22 60 6Z" fill="#FF8A1F"/><path d="M60 20 C66 28 66 36 60 41 C54 36 54 28 60 20Z" fill="#FFE08A"/></g><path ${O(3)} d="M60 46 L60 56"/><rect ${O()} x="38" y="56" width="44" height="46" rx="6" fill="#F2EAD6"/><path d="M38 64 q5 12 10 0 q5 16 10 0" fill="#fff" opacity=".7"/><circle cx="52" cy="80" r="3.2" fill="${INK}"/><circle cx="68" cy="80" r="3.2" fill="${INK}"/><path d="M55 88 Q60 93 65 88" fill="none" stroke="${INK}" stroke-width="2.8" stroke-linecap="round"/><ellipse cx="44" cy="87" rx="5" ry="3" fill="#FF9DB5" opacity=".8"/><ellipse cx="76" cy="87" rx="5" ry="3" fill="#FF9DB5" opacity=".8"/><ellipse ${O(3)} cx="60" cy="106" rx="34" ry="8" fill="#8B8B99"/>`
+  };
+  const D=[
+   {k:'pumpkin',s:'L',y:.14,dir:1,f:1,dx:0},{k:'ghost',s:'L',y:.38,dir:-1,f:.95,dx:.5},{k:'vhs',s:'L',y:.62,dir:1,f:.95,dx:-.5},{k:'candle',s:'L',y:.86,dir:-1,f:.95,dx:.4},
+   {k:'skull',s:'R',y:.13,dir:-1,f:1,dx:-.3},{k:'bat',s:'R',y:.37,dir:1,f:1,dx:.5},{k:'popcorn',s:'R',y:.61,dir:-1,f:.95,dx:-.5},{k:'eyeball',s:'R',y:.85,dir:1,f:.95,dx:.3}];
+  const host=document.createElement('div');host.id='decos';host.setAttribute('aria-hidden','true');document.body.appendChild(host);
+  const items=D.map((d,i)=>{
+    const el=document.createElement('div');el.className='deco';el.style.animationDelay=(i*.6)+'s';
+    el.innerHTML=`<div class="hit"><div class="spin"><svg class="art" viewBox="0 0 120 120">${ART[d.k]}</svg></div></div>`;
+    host.appendChild(el);
+    const b={el,spin:el.querySelector('.spin'),d,ang:0,v:0,hover:false,dir:d.dir};
+    const hit=el.querySelector('.hit');
+    hit.addEventListener('pointerenter',()=>{b.hover=true;el.classList.add('hot');go()});
+    hit.addEventListener('pointerleave',()=>{b.hover=false;el.classList.remove('hot');go()});
+    hit.addEventListener('pointerdown',()=>{b.v+=b.dir*620;go()});
+    return b;
+  });
+  window.__decos=items;
+  function layout(){
+    const W=innerWidth,H=innerHeight,m=(W-1080)/2;
+    if(m<120){host.style.display='none';return}
+    host.style.display='block';
+    const base=Math.min(170,m-30,H*.2);
+    items.forEach(b=>{const s=base*b.d.f,cx=(b.d.s==='L'?m/2:W-m/2)+b.d.dx*Math.max(0,(m-s-40))/2,cy=b.d.y*H;
+      Object.assign(b.el.style,{width:s+'px',height:s+'px',left:(cx-s/2)+'px',top:Math.max(60,cy-s/2)+'px'})});
+  }
+  addEventListener('resize',layout);layout();
+  let raf=0,lastT=0;
+  function go(){if(!raf&&!reduced()){lastT=performance.now();raf=requestAnimationFrame(tick)}}
+  function tick(t){raf=0;const dt=Math.min(.05,(t-lastT)/1000);lastT=t;let act=false;
+    items.forEach(b=>{const tg=b.hover?b.dir*130:0;b.v+=(tg-b.v)*(1-Math.exp(-dt*(b.hover?3:1.5)));if(!b.hover&&Math.abs(b.v)<1.5)b.v=0;b.ang=(b.ang+b.v*dt)%360;if(b.v||b.hover){b.spin.style.transform=`rotate(${b.ang.toFixed(2)}deg)`;act=true}});
+    if(act)raf=requestAnimationFrame(tick)}
+})();
+</script>
+</body>
+</html>

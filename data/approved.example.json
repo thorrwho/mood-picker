@@ -1,0 +1,20 @@
+{
+  "candidates": [
+    {
+      "approved": false,
+      "id": "sinister",
+      "title": "Sinister",
+      "year": 2012,
+      "type": "film",
+      "dread": 4,
+      "pace": "slow",
+      "tags": [
+        "paranoia",
+        "family"
+      ],
+      "blurb": "A true-crime writer moves his family into a house where a killer lived, and finds old home movies.",
+      "_source": "example",
+      "_note": "This is a filled-in example (approved is false, so merge ignores it). The importer adds a real `tmdb` id when it knows one; you can leave it out. Fields starting with an underscore are ignored by merge."
+    }
+  ]
+}

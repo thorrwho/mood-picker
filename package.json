@@ -1,0 +1,17 @@
+{
+  "name": "mood-horror-pick",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Tell the clerk how your week went. Get a horror movie, game or series, with a sarcastic note on why.",
+  "scripts": {
+    "test": "node tests/catalog.test.js && node tests/moods.test.js && node tests/pick.test.js && node tests/where.test.js && node tests/import.test.js && node tests/merge.test.js",
+    "sync": "node scripts/sync-catalog.js",
+    "import:tmdb": "node scripts/import-candidates.js --source tmdb",
+    "import:imdb": "node scripts/import-candidates.js --source imdb",
+    "merge": "node scripts/merge-candidates.js",
+    "merge:dry": "node scripts/merge-candidates.js --dry-run"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

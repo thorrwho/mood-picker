@@ -1,0 +1,41 @@
+// Catalog integrity. Run: node tests/catalog.test.js
+const fs = require('fs'), path = require('path');
+const { CATALOG, TAGS, TYPES, PACES } = require(path.join(__dirname, '..', 'lib', 'catalog.js'));
+let ok = true; const t = (n, c) => { console.log((c ? 'PASS ' : 'FAIL ') + n); if (!c) ok = false; };
+t('the catalog array has no holes or empty entries (a stray ",," would create one)', Object.keys(CATALOG).length === CATALOG.length && CATALOG.every(Boolean));
+t('ids are unique', new Set(CATALOG.map(c => c.id)).size === CATALOG.length);
+t('no title appears twice for the same year', new Set(CATALOG.map(c => c.title.toLowerCase() + '|' + c.year)).size === CATALOG.length);
+t('every entry has the required fields', CATALOG.every(c => c.id && c.title && Number.isInteger(c.year) && c.blurb && Array.isArray(c.tags)));
+t('types are valid', CATALOG.every(c => TYPES.includes(c.type)));
+t('paces are valid', CATALOG.every(c => PACES.includes(c.pace)));
+t('dread is 1 to 5', CATALOG.every(c => Number.isInteger(c.dread) && c.dread >= 1 && c.dread <= 5));
+t('every tag is in the known tag list', CATALOG.every(c => c.tags.length >= 2 && c.tags.every(x => TAGS.includes(x))));
+const THIS_YEAR = new Date().getFullYear();
+t('years are plausible (1895, the first films, to this year)', CATALOG.every(c => c.year >= 1895 && c.year <= THIS_YEAR));
+t('every mood tag is covered by at least 2 titles', TAGS.every(tag => CATALOG.filter(c => c.tags.includes(tag)).length >= 2));
+t('each format has at least 6 titles, so the filtered pool is never empty', TYPES.every(ty => CATALOG.filter(c => c.type === ty).length >= 6));
+t('each format has at least 6 gentle titles (dread <= 2), so a low tolerance still gets real options', TYPES.every(ty => CATALOG.filter(c => c.type === ty && c.dread <= 2).length >= 6));
+t('ids are simple lowercase keys', CATALOG.every(c => /^[a-z0-9]+$/.test(c.id)));
+t('`tmdb`, when present, is a positive integer and only on films/series', CATALOG.filter(c => c.tmdb !== undefined).every(c => Number.isInteger(c.tmdb) && c.tmdb > 0 && c.type !== 'game'));
+const withWhere = CATALOG.filter(c => c.where !== undefined);
+t('`where`, when present, is a short non-empty string', withWhere.every(c => typeof c.where === 'string' && c.where.trim().length > 2 && c.where.length <= 90));
+t('games only list platforms (PC, PlayStation, Xbox, Switch...)', withWhere.filter(c => c.type === 'game').every(c => /(PC|PlayStation|Xbox|Switch|mobile)/.test(c.where)));
+t('films and series only name a known streaming service', withWhere.filter(c => c.type !== 'game').every(c => /^(Netflix|Prime Video|SonyLIV \(India\))$/.test(c.where)));
+const html = path.join(__dirname, '..', 'index.html');
+if (fs.existsSync(html)) {
+  const m = fs.readFileSync(html, 'utf8').match(/\/\*CATALOG_START\*\/\s*const CATALOG=(\[.*?\]);\s*\/\*CATALOG_END\*\//s);
+  t('index.html has an embedded catalog', !!m);
+  if (m) t('embedded catalog is identical to lib/catalog.js (run `npm run sync` if not)', JSON.stringify(JSON.parse(m[1])) === JSON.stringify(CATALOG));
+  const mm = fs.readFileSync(html, 'utf8').match(/\/\*MOODS_START\*\/\s*const MOOD_PATTERNS=(\{.*?\});const MOOD_FRIENDS=(".*?");\s*\/\*MOODS_END\*\//s);
+  const { PATTERNS, FRIENDS } = require(path.join(__dirname, '..', 'lib', 'moods.js'));
+  t('index.html has the embedded mood patterns', !!mm);
+  const sw = fs.readFileSync(html, 'utf8').match(/\/\*SCARE_START\*\/\s*const scareWindow=([\s\S]*?);\s*\/\*SCARE_END\*\//);
+  const it = fs.readFileSync(html, 'utf8').match(/\/\*INTENT_START\*\/\s*const INTENT=(\{.*?\});\s*const detectIntent=([\s\S]*?);\s*\/\*INTENT_END\*\//);
+  const mod = require(path.join(__dirname, '..', 'lib', 'moods.js'));
+  t('index.html has the embedded intent rules', !!it);
+  if (it) t('embedded INTENT patterns and detectIntent are identical to lib/moods.js (run `npm run sync` if not)', JSON.stringify(JSON.parse(it[1])) === JSON.stringify(mod.INTENT) && it[2] === mod.detectIntent.toString());
+  t('index.html has the embedded scareWindow', !!sw);
+  if (sw) t('embedded scareWindow is byte-identical to lib/moods.js (run `npm run sync` if not)', sw[1] === require(path.join(__dirname, '..', 'lib', 'moods.js')).scareWindow.toString());
+  if (mm) t('embedded mood patterns are identical to lib/moods.js (run `npm run sync` if not)', JSON.stringify(JSON.parse(mm[1])) === JSON.stringify(PATTERNS) && JSON.parse(mm[2]) === FRIENDS);
+}
+console.log(ok ? '\nCATALOG OK' : '\nCATALOG PROBLEMS'); process.exit(ok ? 0 : 1);
