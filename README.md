@@ -7,7 +7,7 @@
   <img alt="Titles: 153 real ones, curated" src="https://img.shields.io/badge/titles-153%20real%2C%20curated-0B0B10?style=for-the-badge">
   <img alt="Code license: MIT" src="https://img.shields.io/badge/code-MIT-7CFF6B?style=for-the-badge&labelColor=0B0B10">
 </p>
-
+<p align="center">https://mood-picker-mauve.vercel.app/</p>
 <p align="center">
   <img src="docs/screenshots/hero.png" alt="The homepage: a glitching headline, a deadpan ghost clerk behind a counter with a neon OPEN sign, and spooky stickers in the margins, styled like a late-night VHS rental store" width="880">
 </p>
